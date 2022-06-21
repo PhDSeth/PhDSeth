@@ -71,8 +71,9 @@
 
 
 <script>
-
+//https://firebase.google.com/docs/auth/web/manage-users
 export default {
+    
   data() {
     return {
       form: {
@@ -96,7 +97,8 @@ export default {
         .catch(err => {
           this.error = err.message;
         });
-    }
+    },
+
   }
 };
 </script>
