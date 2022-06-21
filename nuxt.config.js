@@ -27,10 +27,23 @@ export default {
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
+  database: {
+    emulatorPort: 9000,
+    emulatorHost: 'localhost',
+    storage: true,
+  },
+
+  functions: {
+    location: 'us-central1',
+    emulatorPort: 12345,
+    emulatorHost: 'http://10.10.10.3',
+  },
+
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
+    '@nuxtjs/fontawesome',
   ],
 
 
@@ -51,6 +64,9 @@ export default {
             messagingSenderId: "694645031922",
             appId: "1:694645031922:web:8d180b6ede297ea514a16b",
             measurementId: "G-HM0PPD0BSY"
+          },
+          services: {
+            realtimeDb: true // this is the realtime database service
           },
           services: {
             auth: {
@@ -75,5 +91,12 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  }
+  },
+
+  fontawesome: {
+    icons:{
+     solid:true,
+     brands:true
+    }
+   }
 }

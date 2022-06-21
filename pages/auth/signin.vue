@@ -63,7 +63,6 @@ export default {
   },
   methods: {
     async login() {
-        console.log(this.$fire.auth.currentUser)
       let that = this
       try{
       await this.$fire.auth.signInWithEmailAndPassword(this.auth.email, this.auth.password)

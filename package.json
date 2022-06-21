@@ -9,21 +9,26 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.1.1",
+    "@fortawesome/free-brands-svg-icons": "^6.1.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@googlemaps/js-api-loader": "^1.14.3",
     "@nuxtjs/axios": "^5.13.6",
-    "@nuxtjs/firebase": "^7.4.1",
+    "@nuxtjs/firebase": "^8.2.2",
+    "@nuxtjs/fontawesome": "^1.1.2",
     "axios": "^0.27.2",
     "bootstrap": "^5.1.3",
     "core-js": "^3.15.1",
     "firebase": "^9.8.3",
     "nuxt": "^2.15.7",
     "nuxt-gmaps": "^1.2.10",
+    "nuxt-leaflet": "^0.0.27",
     "vue-browser-geolocation": "^1.8.0",
     "vue-typed-js": "^0.1.2",
     "vue3-gmap-custom-marker": "^0.0.5"
   },
   "devDependencies": {
     "@nuxt/image": "^0.6.2",
-    "@nuxtjs/vuetify": "^1.11.3"
+    "@nuxtjs/vuetify": "^1.12.3"
   }
 }

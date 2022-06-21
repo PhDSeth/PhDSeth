@@ -29,7 +29,7 @@ import AiCard from './AiCard.vue'
     margin-top: 4rem;
     padding-left: 20rem;
     padding-right: 20rem;
-     align-self: right;
+
 
 }
 

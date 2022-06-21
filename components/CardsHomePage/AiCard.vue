@@ -1,5 +1,6 @@
 <template>
     <div class = "card" >
+         <font-awesome-icon fa-6x :icon="['fab', 'instagram']" style="font-size: 2rem"/>
 
         <div id="description">
             <div id = container>
