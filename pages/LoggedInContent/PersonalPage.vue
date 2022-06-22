@@ -11,6 +11,13 @@
             <button @click="deleteUser()">Radera konto</button>
             <h2>{{data}}</h2>
         </div>
+   
+
+        <iframe src="http://localhost:8050/dash/" width=700 height=600 onload="rrr"></iframe>
+        <button @click= "sendGrades">Skicka iväg</button>
+        <h4>{{ip}}</h4>
+        
+
 
 
     </div>
@@ -23,16 +30,23 @@
 
 import { getDatabase, ref, set, child, get } from "firebase/database";
 import { getAuth, deleteUser } from "firebase/auth";
+import axios from 'axios'
+
     export default {
+        modules: ['vue-iframes/nuxt'],
 
         middleware: 'auth', //We can definie middleware at each page, instead of setting it
         //globally in nuxt.config
+        components: {
+            
+        },
 
         data(){
             return{
 
                 grade: "",
-                data: {}
+                data: {},
+                ip: ''
 
             }
         },
@@ -60,14 +74,15 @@ import { getAuth, deleteUser } from "firebase/auth";
             },
 
              writeUserData(grade) {
+                console.log(this.$fire.auth.currentUser)
                 grade = this.grade 
                 this.data = grade
                 const db = getDatabase();
-                set(ref(db, 'users/' + $nuxt.$fire.auth.currentUser.uid), {
-                    username: "Cecilias",
-                    email: "c@gmail.com",
+                set(ref(db, 'users/' + this.$fire.auth.currentUser.uid), {
+                    username: this.$fire.auth.currentUser.displayName,
+                    email: this.$fire.auth.currentUser.email,
                     betyg: grade,
-                    id: $nuxt.$fire.auth.currentUser.uid
+                    id: this.$fire.auth.currentUser.uid
             });
             },
 
@@ -82,9 +97,23 @@ import { getAuth, deleteUser } from "firebase/auth";
                 // An error ocurred
                 // ...
                 });
+            },
+
+            async sendGrades(){
+
+                const ip = await axios.get('http://localhost:8050').then((response) =>{
+                    return this.ip = response
+                })
+               
+
+
+
             }
+
+   
             
-        }
+        },
+        
 
     }
   
