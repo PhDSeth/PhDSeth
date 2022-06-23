@@ -1,5 +1,6 @@
 
 import locale
+from matplotlib.pyplot import text
 import pandas as pd
 import numpy as np
 import dash                     #(version 1.0.0)
@@ -75,7 +76,7 @@ blackbold={'color':'black', 'font-weight': 'bold'}
 
 
 df = pd.DataFrame(
-    {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"]}
+    {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
 )
 
 initial_active_cell = {"row":0, "column":0}
@@ -86,23 +87,19 @@ app.layout = html.Div(style={'backgroundColor':'white'}, children=[
 
         html.Div([
                  html.Div([
-                    dcc.Input(
-                        id='editing-columns-name',
-                        placeholder='Ange namn på kolumn...',
-                        value='',
-                        style={'padding': 10}
-                    ),
+               
                     
-                    html.Button('Lägg till kolumn', id='editing-columns-button', n_clicks=0)
+                    html.Button('Radera tabell', id='delete-button', n_clicks=0)
                 ], style={'height': 50}),
 
                  dash_table.DataTable(
                      #Vi behöver ett ID för att kunna kalla i @Callback
                     id='table',
-                    columns=[{'name': df["labels"][0],'id': 'column1', 'deletable': True,'renamable': True, 'clearable':True,},
-                            {'name': df["labels"][1],'id': 'column2', 'deletable': True,'renamable': True,'clearable':True,},
-                            {'name': df["labels"][2],'id': 'column3', 'deletable': True,'renamable': True,'clearable':True,},
-                            {'name': df["labels"][3],'id': 'column4', 'deletable': True,'renamable': True,'clearable':True,},
+                    columns=[{'name': df["labels"][0],'id': 'column1', 'clearable':True,},
+                            {'name': df["labels"][1],'id': 'column2', 'clearable':True,},
+                            {'name': df["labels"][2],'id': 'column3', 'clearable':True,},
+                            {'name': df["labels"][3],'id': 'column4', 'clearable':True,},
+                            # {'name': df["labels"][3],'id': 'column4', 'deletable': True,'renamable': True,'clearable':True,},
                     ], 
                     data=[
                         {'column-{}'.format(i): df.to_dict() for i in range(1, 5)}
@@ -111,7 +108,7 @@ app.layout = html.Div(style={'backgroundColor':'white'}, children=[
                     editable=True,
                     export_format='xlsx',
                     export_headers='display',
-                    merge_duplicate_headers=True,
+                    merge_duplicate_headers=False,
                     row_deletable=True,
                     active_cell= initial_active_cell,
                  
@@ -159,7 +156,20 @@ def update_graphs(active_cell, derived_virtual_data):
     row_index = derived_virtual_data
     col_index = str(active_cell["column"])
     data_table = derived_virtual_data
-    print(data_table)
+
+    # for row in data_table:
+    #     if "column1" in row:
+    #         print(row["column1"])
+    #         print("---------------------------")
+
+    for row in data_table:
+     for col in row:
+        print(col)
+        print("---------------------------")
+
+    # if "column1" in data_table:
+    #     print("COLUMN 1: !!!!!!!!!!!!!!!!", data_table["column1"])
+
     data_updated_table = data_table
     # for row in data_table:
     #     print(row)
@@ -169,7 +179,7 @@ def update_graphs(active_cell, derived_virtual_data):
         #     print(row)
         #     print("-------------------------")
     # row_index = pd.DataFrame(data=derived_virtual_data)
-    db.child("tables/").set(data_table)
+    # db.child("tables/").set(data_table)
     return data_updated_table
 
 @flask_app.route('/', methods = ['GET', 'POST']) #The order GET, POST is Important, not POST, GET
@@ -177,13 +187,22 @@ def check():
     if request.method == 'POST':
        jsonData = request.get_json()
        uid = jsonData["uid"]
-       db.child("users/").child(uid).child("data från flask/dash").set(data_updated_table)
+       db.child("users/").child(uid).child("Data från flask/dash").set(data_updated_table)
     
 
-       return "hi"
+    return "hi"
 
 
 
+@app.callback(
+    Output('table', 'data'),
+    [Input('delete-button', 'n_clicks')]
+)
+def delete_table_data(n_clicks):
+    if n_clicks == 0:
+        raise dash.exceptions.PreventUpdate()
+    data = pd.DataFrame().to_dict("bajs")  #empty dataframe
+    return data
 
         
 
