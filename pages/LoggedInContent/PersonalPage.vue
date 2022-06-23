@@ -99,10 +99,12 @@ import axios from 'axios'
                 });
             },
 
-            async sendGrades(){
+            sendGrades(){
 
-                const ip = await axios.get('http://localhost:8050').then((response) =>{
-                    return this.ip = response
+                const data = {"uid": this.$fire.auth.currentUser.uid}
+
+                const ip = axios.post('http://localhost:8050/', data).then((response) =>{
+                    return this.ip = response.data
                 })
                
 

@@ -1,4 +1,5 @@
 
+import locale
 import pandas as pd
 import numpy as np
 import dash                     #(version 1.0.0)
@@ -20,7 +21,7 @@ from firebase import Auth, Firebase
 # Importing flask module in the project is mandatory
 # An object of Flask class is our WSGI application.
 from flask_cors import CORS
-from flask import Flask
+from flask import Flask, redirect, url_for, request
 
  
 # Flask constructor takes the name of
@@ -29,16 +30,11 @@ flask_app = Flask(__name__)
 CORS(flask_app)
 
  
+data_updated_table = "hej"
 # The route() function of the Flask class is a decorator,
 # which tells the application which URL should call
 # the associated function.
-@flask_app.route('/')
-# ‘/’ URL is bound with hello_world() function.
-def Hello():
-    return row_index
-   
-    
-    
+
 
 # main driver function
 
@@ -96,6 +92,7 @@ app.layout = html.Div(style={'backgroundColor':'white'}, children=[
                         value='',
                         style={'padding': 10}
                     ),
+                    
                     html.Button('Lägg till kolumn', id='editing-columns-button', n_clicks=0)
                 ], style={'height': 50}),
 
@@ -103,9 +100,9 @@ app.layout = html.Div(style={'backgroundColor':'white'}, children=[
                      #Vi behöver ett ID för att kunna kalla i @Callback
                     id='table',
                     columns=[{'name': df["labels"][0],'id': 'column1', 'deletable': True,'renamable': True, 'clearable':True,},
-                            {'name': df["labels"][1],'id': 'column2', 'deletable': True,'renamable': True},
-                            {'name': df["labels"][2],'id': 'column3', 'deletable': True,'renamable': True},
-                            {'name': df["labels"][3],'id': 'column4', 'deletable': True,'renamable': True},
+                            {'name': df["labels"][1],'id': 'column2', 'deletable': True,'renamable': True,'clearable':True,},
+                            {'name': df["labels"][2],'id': 'column3', 'deletable': True,'renamable': True,'clearable':True,},
+                            {'name': df["labels"][3],'id': 'column4', 'deletable': True,'renamable': True,'clearable':True,},
                     ], 
                     data=[
                         {'column-{}'.format(i): df.to_dict() for i in range(1, 5)}
@@ -159,14 +156,45 @@ def update_columns(n_clicks, value, existing_columns):
 @app.callback(Output('table', 'children'), Input('table', 'active_cell'),
 Input('table', 'derived_virtual_data'))
 def update_graphs(active_cell, derived_virtual_data):
-    global row_index
     row_index = derived_virtual_data
     col_index = str(active_cell["column"])
-
-    print(row_index)
+    data_table = derived_virtual_data
+    print(data_table)
+    data_updated_table = data_table
+    # for row in data_table:
+    #     print(row)
+    #     print("---------------")
+        # print(row["column1"], row["column3"], row["column4"])
+        # if row["column1"] != None:
+        #     print(row)
+        #     print("-------------------------")
     # row_index = pd.DataFrame(data=derived_virtual_data)
-    return derived_virtual_data
+    db.child("tables/").set(data_table)
+    return data_updated_table
 
+@flask_app.route('/', methods = ['GET', 'POST']) #The order GET, POST is Important, not POST, GET
+def check():
+    if request.method == 'POST':
+       jsonData = request.get_json()
+       uid = jsonData["uid"]
+       db.child("users/").child(uid).child("data från flask/dash").set(data_updated_table)
+    
+
+       return "hi"
+
+
+
+
+        
+
+
+
+# # ‘/’ URL is bound with hello_world() function.
+# def Hello():
+#     return data_updated_table
+   
+    
+    
 
 if __name__ == '__main__':
     app.run_server(debug=False)
