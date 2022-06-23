@@ -204,13 +204,33 @@ def update_graphs(rows, active_cell,derived_virtual_selected_rows):
         derived_virtual_selected_rows = []
 
     dff = df if rows is None else pd.DataFrame(rows)
-    print(dff["column-1"])
+    # print(type(dff["column-0"].to_frame()))
+    # print("HÄR")
+    # print(dff["column-0"].tolist())
+    
+    course_name = dff["column-0"].tolist()
+    grades = dff["column-2"].tolist()
+    credits = dff["column-3"].tolist()
+
+    new_df = pd.DataFrame(list(zip(course_name, grades,credits)),
+               columns =['Kurs', 'Betyg',"Poäng"])
+
+    bajs = {
+        "Kurs":course_name,
+        "Betyg":grades,
+        "Poäng": credits
+    }
+
+    db.child("users/").child("Betyg").set(bajs)
+
     print("---------------")
-    print(dff["column-2"])
-    print("---------------")
-    print(dff["column-3"])
-    print("---------------")
-    print(dff["column-4"])
+    # print(dff["column-1"])
+    # print("---------------")
+    # print(dff["column-2"])
+    # print("---------------")
+    # print(dff["column-3"])
+    # print("---------------")
+    # print(dff["column-4"])
 
     colors = ['#7FDBFF' if i in derived_virtual_selected_rows else '#0074D9'
               for i in range(len(dff))]
