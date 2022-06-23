@@ -103,12 +103,14 @@ app.layout = html.Div([
         merge_duplicate_headers=False,
         row_deletable=True,
         active_cell= initial_active_cell,
+        sort_action='native',
+        sort_mode='multi',
+        sort_by=[{'direction': 'asc'}]
     ),
 
     html.Button('Add Row', id='editing-rows-button', n_clicks=0),
     html.Button('DELETE', id='delete-button', n_clicks=0),
-
-    dcc.Graph(id='adding-rows-graph')
+    html.Div(id='datatable-interactivity-container'),
 ])
 
 
@@ -136,20 +138,6 @@ def update_columns(n_clicks, value, existing_columns):
             'renamable': True, 'deletable': True
         })
     return existing_columns
-
-
-@app.callback(
-    Output('adding-rows-graph', 'figure'),
-    Input('adding-rows-table', 'data'),
-    Input('adding-rows-table', 'columns'))
-def display_output(rows, columns):
-    return {
-        'data': [{
-            'type': 'heatmap',
-            'z': [[row.get(c['id'], None) for c in columns] for row in rows],
-            'x': [c['name'] for c in columns]
-        }]
-    }
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 
@@ -196,6 +184,86 @@ def check():
     return "hi"
 
 
+@app.callback(
+    Output('datatable-interactivity-container', "children"),
+    Input('adding-rows-table', "derived_virtual_data"),
+    Input('adding-rows-table', 'active_cell'),
+    Input('adding-rows-table', "derived_virtual_selected_rows"))
+def update_graphs(rows, active_cell,derived_virtual_selected_rows):
+    # When the table is first rendered, `derived_virtual_data` and
+    # `derived_virtual_selected_rows` will be `None`. This is due to an
+    # idiosyncrasy in Dash (unsupplied properties are always None and Dash
+    # calls the dependent callbacks when the component is first rendered).
+    # So, if `rows` is `None`, then the component was just rendered
+    # and its value will be the same as the component's dataframe.
+    # Instead of setting `None` in here, you could also set
+    # `derived_virtual_data=df.to_rows('dict')` when you initialize
+    # the component.
+    print(active_cell)
+    if derived_virtual_selected_rows is None:
+        derived_virtual_selected_rows = []
+
+    dff = df if rows is None else pd.DataFrame(rows)
+    print(dff["column-1"])
+    print("---------------")
+    print(dff["column-2"])
+    print("---------------")
+    print(dff["column-3"])
+    print("---------------")
+    print(dff["column-4"])
+
+    colors = ['#7FDBFF' if i in derived_virtual_selected_rows else '#0074D9'
+              for i in range(len(dff))]
+
+
+    for grade in dff.index:
+        if dff["column-2"][grade] == "MVG" or dff["column-2"][grade] == "A":
+            dff["column-2"][grade] = 20
+        
+        if dff["column-2"][grade] == "B":
+            dff["column-2"][grade] = 17.5
+
+        if dff["column-2"][grade] == "VG" or dff["column-2"][grade] == "C":
+            dff["column-2"][grade] = 15
+        
+        if dff["column-2"][grade] == "D":
+            dff["column-2"][grade] = 12.5
+        
+        if dff["column-2"][grade] == "E" or dff["column-2"][grade] == "G":
+            dff["column-2"][grade] = 10
+
+        if dff["column-2"][grade] == "IG" or dff["column-2"][grade] == "F":
+            dff["column-2"][grade] = 0
+
+
+    return [
+        dcc.Graph(
+            id=column,
+            figure={
+                "data": [
+                    {
+                        "x": dff["column-0"],
+                        "y": dff["column-2"],
+                        "type": "bar",
+                        "marker": {"color": colors},
+                    }
+                ],
+                "layout": {
+                    "xaxis": {"automargin": True},
+                    "yaxis": {
+                        "automargin": True,
+                        "title": {"text": column}
+                    },
+                    "height": 250,
+                    "margin": {"t": 10, "l": 10, "r": 10},
+                },
+            },
+        )
+        # check if column exists - user may have deleted it
+        # If `column.deletable=False`, then you don't
+        # need to do this check.
+        for column in ["column-3"] if column in dff
+    ]
 
 
 
