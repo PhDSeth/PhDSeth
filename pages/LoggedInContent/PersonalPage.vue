@@ -103,9 +103,11 @@ import axios from 'axios'
 
                 const data = {"uid": this.$fire.auth.currentUser.uid}
 
-                const ip = axios.post('http://localhost:8050/', data).then((response) =>{
-                    return this.ip = response.data
-                })
+                //we need to set axios create with "withCredential: true" in order
+                //for session to work.Has to do with cookie compability
+                const ip = axios.create({withCredentials: true})
+                
+                ip.post('http://localhost:8050/hej', data).then(response =>{return this.ip = response.data})
                
 
 

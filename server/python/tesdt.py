@@ -18,19 +18,30 @@ import plotly.graph_objs as go
 from firebase import Auth, Firebase
 
 
-
 # Importing flask module in the project is mandatory
 # An object of Flask class is our WSGI application.
-from flask_cors import CORS
-from flask import Flask, redirect, url_for, request
-
- 
+from flask_cors import CORS, cross_origin
+from flask import Flask, redirect, url_for, request, session
+from flask_session import Session
+from flask_caching import Cache
+import os
+from datetime import timedelta
 # Flask constructor takes the name of
 # current module (__name__) as argument.
 flask_app = Flask(__name__)
-CORS(flask_app)
+flask_app.secret_key = 'v&7yhgbdn_fdfefkdjhdui' #Session needs it. We cannot erase a session, if we want we can change the key to 
+ #Session needs it. We cannot erase a session, if we want we can change the key to 
+#reset the session key
+flask_app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days = 7)
+# flask_app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=False)
+flask_app.config['SESSION_TYPE']='filesystem'
+Session(flask_app)
+CORS(flask_app,supports_credentials=True)
 
- 
+
+
+
+
 data_updated_table = "hej"
 # The route() function of the Flask class is a decorator,
 # which tells the application which URL should call
@@ -60,7 +71,6 @@ mapbox_access_token= 'pk.eyJ1IjoicGx1Z2drb2xsIiwiYSI6ImNrbDhjMXFxbDJyYm8ybmxidjc
 # mapbox_access_token = 'insert_your_mapbox_token_here'
 
 
-
 # df = pd.read_csv("finalrecycling.csv")
 
 #So we can have icons
@@ -69,6 +79,7 @@ FA = "https://use.fontawesome.com/releases/v5.12.1/css/all.css"
 app = dash.Dash(__name__,meta_tags=[{'name': 'viewport',
                             'content': 'initial-scale=0.9'}], 
                 external_stylesheets=[FA], server=flask_app, routes_pathname_prefix="/dash/")
+
 
 blackbold={'color':'black', 'font-weight': 'bold'}
 
@@ -85,6 +96,7 @@ initial_active_cell = {"row":0, "column":0}
 app.layout = html.Div([
 
     dash_table.DataTable(
+        
         id='adding-rows-table',
         columns=[{
             'name': df["labels"][i],
@@ -111,6 +123,7 @@ app.layout = html.Div([
     html.Button('Add Row', id='editing-rows-button', n_clicks=0),
     html.Button('DELETE', id='delete-button', n_clicks=0),
     html.Div(id='datatable-interactivity-container'),
+    dcc.Store(id='store-data', data = [], storage_type='memory')
 ])
 
 
@@ -153,10 +166,10 @@ def update_graphs(active_cell, derived_virtual_data):
     #         print(row["column1"])
     #         print("---------------------------")
 
-    for row in data_table:
-     for col in row:
-        print(col)
-        print("---------------------------")
+    # for row in data_table:
+    #  for col in row:
+        # print(col)
+        # print("---------------------------")
 
     # if "column1" in data_table:
     #     print("COLUMN 1: !!!!!!!!!!!!!!!!", data_table["column1"])
@@ -173,15 +186,33 @@ def update_graphs(active_cell, derived_virtual_data):
     # db.child("tables/").set(data_table)
     return data_updated_table
 
-@flask_app.route('/', methods = ['GET', 'POST']) #The order GET, POST is Important, not POST, GET
-def check():
-    if request.method == 'POST':
-       jsonData = request.get_json()
-       uid = jsonData["uid"]
-       db.child("users/").child(uid).child("BASJ FRÅN DAQSH").set(data_updated_table)
-    
 
-    return "hi"
+@flask_app.route('/hej', methods = ['GET','POST']) #The order GET, POST is Important, not POST, GET
+@cross_origin(supports_credentials=True)
+def check():
+    jsonData = request.get_json()
+    print("jsonData", jsonData)
+    uid = jsonData["uid"]
+    session['uid'] = uid
+
+
+    print(session)
+    if session['uid'] != uid:
+        session['uid'] = uid
+        print(session)
+      
+    else:
+        print("redan satt")
+        # session.clear()
+    return session['uid']
+
+
+@flask_app.route('/kiss',) #The order GET, POST is Important, not POST, GET
+# @cross_origin(supports_credentials=True)
+def kiss():
+    
+    print("FRÅN KISS", session)
+    return "hej"
 
 
 @app.callback(
@@ -189,6 +220,7 @@ def check():
     Input('adding-rows-table', "derived_virtual_data"),
     Input('adding-rows-table', 'active_cell'),
     Input('adding-rows-table', "derived_virtual_selected_rows"))
+# @cross_origin(supports_credentials=True)
 def update_graphs(rows, active_cell,derived_virtual_selected_rows):
     # When the table is first rendered, `derived_virtual_data` and
     # `derived_virtual_selected_rows` will be `None`. This is due to an
@@ -199,7 +231,6 @@ def update_graphs(rows, active_cell,derived_virtual_selected_rows):
     # Instead of setting `None` in here, you could also set
     # `derived_virtual_data=df.to_rows('dict')` when you initialize
     # the component.
-    print(active_cell)
     if derived_virtual_selected_rows is None:
         derived_virtual_selected_rows = []
 
@@ -212,16 +243,25 @@ def update_graphs(rows, active_cell,derived_virtual_selected_rows):
     grades = dff["column-2"].tolist()
     credits = dff["column-3"].tolist()
 
+
     new_df = pd.DataFrame(list(zip(course_name, grades,credits)),
                columns =['Kurs', 'Betyg',"Poäng"])
 
-    bajs = {
-        "Kurs":course_name,
-        "Betyg":grades,
-        "Poäng": credits
-    }
+    i = 0
+    for c in course_name:
+        if i > len(course_name):
+            i = 0
+        
+        
+        bajs = {
+            "Betyg":grades[i],
+            "Poäng": credits[i]
+        }
+            
+        db.child("users/").child(session["uid"]).child("Betyg").child(c).set(bajs)
+        i += 1
 
-    db.child("users/").child("Betyg").set(bajs)
+
 
     print("---------------")
     # print(dff["column-1"])
@@ -287,13 +327,10 @@ def update_graphs(rows, active_cell,derived_virtual_selected_rows):
 
 
 
+
 # # ‘/’ URL is bound with hello_world() function.
 # def Hello():
 #     return data_updated_table
-   
-    
-    
-
 if __name__ == '__main__':
     app.run_server(debug=False)
 
@@ -301,34 +338,3 @@ if __name__ == '__main__':
     
 # if __name__ == '__main__':
 #     flask_app.run_server(debug=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
