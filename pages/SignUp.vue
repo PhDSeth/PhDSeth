@@ -71,6 +71,7 @@
 
 
 <script>
+import axios from 'axios'
 //https://firebase.google.com/docs/auth/web/manage-users
 export default {
     
@@ -85,20 +86,37 @@ export default {
     };
   },
   methods: {
-    submit() {
-      $nuxt.$fire
+    async submit() {
+      await $nuxt.$fire
         .auth.createUserWithEmailAndPassword(this.form.email, this.form.password).then(data => {
           data.user
             .updateProfile({
               displayName: this.form.name
             })
-            .then(() => {});
+            .then(() => {
+              
+              const uid = this.$fire.auth.currentUser.uid
+              const username = this.$fire.auth.currentUser.displayName
+              const email = this.$fire.auth.currentUser.email
+              const data_to_send = {uid,username,email}
+
+              // data = {uid,username,email}
+
+                  //we need to set axios create with "withCredential: true" in order
+                  //for session to work.Has to do with cookie compability
+              const ip = axios.create({withCredentials: true})
+
+              ip.post('http://localhost:8050/register',data_to_send ).then(response =>{return this.ip = response.data})
+
+               
+            });
         })
         .catch(err => {
           this.error = err.message;
         });
     },
 
-  }
+
+  },
 };
 </script>

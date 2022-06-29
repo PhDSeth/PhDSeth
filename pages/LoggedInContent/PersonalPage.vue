@@ -2,6 +2,7 @@
     <div>
         {{$nuxt.$fire.auth.currentUser.email}} ÄR INLOGGAD! 
         <button @click="signOut">Logga ut</button>
+        <nuxt-link to="/Test">TILL TEST</nuxt-link>
 
         <div>
             <label for="grade">Betyg</label>
@@ -51,23 +52,6 @@ import axios from 'axios'
             }
         },
 
-        mounted(){ //created can also work, but then we will have a little delay, since created executes AFTER
-        //components is created, while mounter is executed BEFORE components is created
-            const b =  $nuxt.$fire.auth.currentUser.uid
-            console.log("B ÄR:", b)
-                const dbRef = ref(getDatabase());
-                    get(child(dbRef, `users/${b}`)).then((snapshot) => {
-                    if (snapshot.exists()) {
-                        this.data = snapshot.val().betyg
-                        console.log(snapshot.val());
-                    } else {
-                        console.log("No data available");
-                    }
-                    }).catch((error) => {
-                    console.error(error);
-                    });
-        },
-
         methods:{
             signOut(){
                 $nuxt.$fire.auth.signOut()
@@ -98,21 +82,6 @@ import axios from 'axios'
                 // ...
                 });
             },
-
-            sendGrades(){
-
-                const data = {"uid": this.$fire.auth.currentUser.uid}
-
-                //we need to set axios create with "withCredential: true" in order
-                //for session to work.Has to do with cookie compability
-                const ip = axios.create({withCredentials: true})
-                
-                ip.post('http://localhost:8050/hej', data).then(response =>{return this.ip = response.data})
-               
-
-
-
-            }
 
    
             

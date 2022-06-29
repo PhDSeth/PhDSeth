@@ -4,7 +4,7 @@ from matplotlib.pyplot import text
 import pandas as pd
 import numpy as np
 import dash                     #(version 1.0.0)
-import dash_table
+import dash_table as dt
 import dash_core_components as dcc
 
 import dash_html_components as html
@@ -26,6 +26,8 @@ from flask_session import Session
 from flask_caching import Cache
 import os
 from datetime import timedelta
+
+from scipy.fftpack import diff
 # Flask constructor takes the name of
 # current module (__name__) as argument.
 flask_app = Flask(__name__)
@@ -95,8 +97,7 @@ initial_active_cell = {"row":0, "column":0}
 
 app.layout = html.Div([
 
-    dash_table.DataTable(
-        
+    dt.DataTable(
         id='adding-rows-table',
         columns=[{
             'name': df["labels"][i],
@@ -154,13 +155,18 @@ def update_columns(n_clicks, value, existing_columns):
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 
+
+#This callback fires when we click in the table, not altering data
 @app.callback(Output('adding-rows-table', 'children'), Input('adding-rows-table', 'active_cell'),
 Input('adding-rows-table', 'derived_virtual_data'))
 def update_graphs(active_cell, derived_virtual_data):
-    row_index = derived_virtual_data
-    col_index = str(active_cell["column"])
+    # col_index = str(active_cell["column"])
+    # row_index = str(active_cell["row"])
     data_table = derived_virtual_data
+    # print("KOLUMNE:",col_index)
+    # print("RAD",row_index)
 
+    #When we interact 
     # for row in data_table:
     #     if "column1" in row:
     #         print(row["column1"])
@@ -173,7 +179,7 @@ def update_graphs(active_cell, derived_virtual_data):
 
     # if "column1" in data_table:
     #     print("COLUMN 1: !!!!!!!!!!!!!!!!", data_table["column1"])
-
+    # print("från den andra högre up!!!!!!!!!!!!!!!")
     data_updated_table = data_table
     # for row in data_table:
     #     print(row)
@@ -185,6 +191,19 @@ def update_graphs(active_cell, derived_virtual_data):
     # row_index = pd.DataFrame(data=derived_virtual_data)
     # db.child("tables/").set(data_table)
     return data_updated_table
+
+
+@flask_app.route('/register', methods =['GET','POST'])
+@cross_origin(supports_credentials=True)
+def register():
+    jsonData = request.get_json()
+
+    # uid = jsonData["uid"]
+    session['uid'] = jsonData["uid"]
+    print(session)
+    db.child("users/").child(jsonData["uid"]).set(jsonData)
+    return "hej"
+
 
 
 @flask_app.route('/hej', methods = ['GET','POST']) #The order GET, POST is Important, not POST, GET
@@ -214,12 +233,12 @@ def kiss():
     print("FRÅN KISS", session)
     return "hej"
 
-
+#This callback fires when we change data
 @app.callback(
     Output('datatable-interactivity-container', "children"),
     Input('adding-rows-table', "derived_virtual_data"),
-    Input('adding-rows-table', 'active_cell'),
-    Input('adding-rows-table', "derived_virtual_selected_rows"))
+    State('adding-rows-table', 'active_cell'),
+    State('adding-rows-table', "derived_virtual_selected_rows"))
 # @cross_origin(supports_credentials=True)
 def update_graphs(rows, active_cell,derived_virtual_selected_rows):
     # When the table is first rendered, `derived_virtual_data` and
@@ -231,49 +250,72 @@ def update_graphs(rows, active_cell,derived_virtual_selected_rows):
     # Instead of setting `None` in here, you could also set
     # `derived_virtual_data=df.to_rows('dict')` when you initialize
     # the component.
-    if derived_virtual_selected_rows is None:
-        derived_virtual_selected_rows = []
 
-    dff = df if rows is None else pd.DataFrame(rows)
-    # print(type(dff["column-0"].to_frame()))
-    # print("HÄR")
-    # print(dff["column-0"].tolist())
+        #Get the indicies where the data changed
+    col_index = str(active_cell["column"])
+    row_index = str(active_cell["row"])
+    print("KOLUMNE:",col_index)
+    print("RAD",row_index)
+
+    if  print(db.child("users/").child(session["uid"]).child("Betyg").get().val()) != None:
+        #get the dataframe from firebase db
+        # print(type(db.child("users/").child(session["uid"]).child("Betyg").get().val()))
+        print("Hämta från databas")
+        grades_ordered_df = db.child("users/").child(session["uid"]).child("Betyg").get().val()
+        dff = pd.DataFrame(grades_ordered_df, columns=grades_ordered_df.keys())
+        print(dff.T.keys())
+        dff = dff.T
+
+        #column names from firebase, rename
+        dff.columns = ["column-2", "column-0", "column-3"] 
+
     
-    course_name = dff["column-0"].tolist()
-    grades = dff["column-2"].tolist()
-    credits = dff["column-3"].tolist()
+    else:
+            #If the user has already inpu
+            # if session.get("grade-dash-table") is True:
 
+        if derived_virtual_selected_rows is None:
+            derived_virtual_selected_rows = []
 
-    new_df = pd.DataFrame(list(zip(course_name, grades,credits)),
-               columns =['Kurs', 'Betyg',"Poäng"])
+        dff = df if rows is None else pd.DataFrame(rows)
+        # print(type(dff["column-0"].to_frame()))
+        # print("HÄR")
+        # print(dff["column-0"].tolist())
 
-    i = 0
-    for c in course_name:
-        if i > len(course_name):
-            i = 0
+        print("DATA I CELLEN", dff['column-0'].values[int(row_index)-1])
         
-        
-        bajs = {
-            "Betyg":grades[i],
-            "Poäng": credits[i]
-        }
+        course_name = dff["column-0"].tolist()
+        grades = dff["column-2"].tolist()
+        credits = dff["column-3"].tolist()
+
+        #If the user change course names, we want to handle this.
+        #course name is where col_index is equal to 0
+
+
+        new_df = pd.DataFrame(list(zip(course_name, grades,credits)),
+                columns =['Kurs', 'Betyg',"Poäng"])
+
+        i = 0
+        for c in course_name:
+            if i > len(course_name):
+                i = 0
             
-        db.child("users/").child(session["uid"]).child("Betyg").child(c).set(bajs)
-        i += 1
+            
+            bajs = {
+                "Kursnamn": c,
+                "Betyg":grades[i],
+                "Poäng": credits[i]
+            }
+            
+            if c != "": 
+                db.child("users/").child(session["uid"]).child("Betyg").child(c).set(bajs)
+            i += 1
+        
+        session["grade-dash-table"] = True
 
-
-
-    print("---------------")
-    # print(dff["column-1"])
-    # print("---------------")
-    # print(dff["column-2"])
-    # print("---------------")
-    # print(dff["column-3"])
-    # print("---------------")
-    # print(dff["column-4"])
 
     colors = ['#7FDBFF' if i in derived_virtual_selected_rows else '#0074D9'
-              for i in range(len(dff))]
+            for i in range(len(dff))]
 
 
     for grade in dff.index:
@@ -294,6 +336,7 @@ def update_graphs(rows, active_cell,derived_virtual_selected_rows):
 
         if dff["column-2"][grade] == "IG" or dff["column-2"][grade] == "F":
             dff["column-2"][grade] = 0
+
 
 
     return [
@@ -325,7 +368,22 @@ def update_graphs(rows, active_cell,derived_virtual_selected_rows):
         for column in ["column-3"] if column in dff
     ]
 
+# from dash.exceptions import PreventUpdate
 
+# @app.callback(Output(session, 'data'),
+#                   Input('', 'n_clicks'),
+#                   State(session, 'data'))
+# def on_click(n_clicks, data):
+#     if n_clicks is None:
+#         # prevent the None callbacks is important with the store component.
+#         # you don't want to update the store for nothing.
+#         raise PreventUpdate
+
+#     # Give a default data dict with 0 clicks if there's no data.
+#     data = data or {'clicks': 0}
+
+#     data['clicks'] = data['clicks'] + 1
+#     return data
 
 
 # # ‘/’ URL is bound with hello_world() function.
@@ -338,3 +396,6 @@ if __name__ == '__main__':
     
 # if __name__ == '__main__':
 #     flask_app.run_server(debug=False)
+
+
+#Ändra dash_table till dt
