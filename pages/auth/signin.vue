@@ -50,7 +50,9 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
+  
   data() {
     return {
       snackbar: false,
@@ -65,7 +67,21 @@ export default {
     async login() {
       let that = this
       try{
-      await this.$fire.auth.signInWithEmailAndPassword(this.auth.email, this.auth.password)
+      await this.$fire.auth.signInWithEmailAndPassword(this.auth.email, this.auth.password).then(()=>
+      {
+          const uid = this.$fire.auth.currentUser.uid
+          const username = this.$fire.auth.currentUser.displayName
+          const email = this.$fire.auth.currentUser.email
+          const data_to_send = {uid,username,email}
+          console.log(data_to_send)
+          
+          const ip = axios.create({withCredentials: true})
+
+
+          ip.post('http://localhost:8050/register_activity',data_to_send ).then(response =>{return this.ip = response.data})
+      
+
+      })
       this.$router.push('/')
       
       }

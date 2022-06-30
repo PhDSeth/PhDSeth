@@ -15,7 +15,6 @@
    
 
         <iframe src="http://localhost:8050/dash/" width=700 height=600 onload="rrr"></iframe>
-        <button @click= "sendGrades">Skicka iväg</button>
         <h4>{{ip}}</h4>
         
 
@@ -54,7 +53,16 @@ import axios from 'axios'
 
         methods:{
             signOut(){
-                $nuxt.$fire.auth.signOut()
+                $nuxt.$fire.auth.signOut().then(()=>{
+                    const uid = this.$fire.auth.currentUser.uid
+                    const username = this.$fire.auth.currentUser.displayName
+                    const email = this.$fire.auth.currentUser.email
+                    const data_to_send = {uid,username,email}
+                                const ip = axios.create({withCredentials: true})
+
+                    ip.post('http://localhost:8050/logout',data_to_send ).then(response =>{return this.ip = response.data})
+
+                })
             },
 
              writeUserData(grade) {
@@ -86,7 +94,6 @@ import axios from 'axios'
    
             
         },
-        
 
     }
   

@@ -92,6 +92,41 @@ df = pd.DataFrame(
     {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
 )
 
+#---------------------------------------------------ORDINARY FUNCTIONS----------------------------
+def create_map():
+#Check first if logged in and authoirized
+    schools = db.child("schoolsContactInfo/").get()
+    coordinates_all = []
+    cities = []
+
+    i = 0
+    for school in schools.each():
+        if i < 2:
+            coord = []
+            contact_json = school.val()
+            coordinate = contact_json["coordinates"]
+            lat = coordinate["lat"]
+            long = coordinate["long"]
+            coord.append(lat)
+            coord.append(long)
+            coordinates_all.append(coord)
+
+            city = contact_json["visitAdress"]["town"]
+            cities.append(city)
+        
+
+
+            i +=1
+    print(cities)
+    print(coordinates_all)
+    data = {"city":cities, "coord":coordinates_all}
+    df = pd.DataFrame(data)
+    
+    return df
+
+df_map = create_map()
+#----------------------------------------------END ON     ORDINARY FUNCTIONS-----------------------
+
 initial_active_cell = {"row":0, "column":0}
 #Här lacerar vi alla dic/element på webbsidan
 
@@ -126,6 +161,9 @@ app.layout = html.Div([
     html.Div(id='datatable-interactivity-container'),
     dcc.Store(id='store-data', data = [], storage_type='memory')
 ])
+
+
+
 
 
 @app.callback(
@@ -193,18 +231,20 @@ def update_graphs(active_cell, derived_virtual_data):
     return data_updated_table
 
 
-@flask_app.route('/register', methods =['GET','POST'])
+#Every signed in user have a set session with uid
+@flask_app.route('/register_activity', methods =['GET','POST'])
 @cross_origin(supports_credentials=True)
 def register():
     jsonData = request.get_json()
+    print(jsonData)
 
     # uid = jsonData["uid"]
     session['uid'] = jsonData["uid"]
+    session['loggedIn'] = True
     print(session)
-    db.child("users/").child(jsonData["uid"]).set(jsonData)
+    if session.get('uid') != None: #first time 
+        db.child("users/").child(jsonData["uid"]).set(jsonData)
     return "hej"
-
-
 
 @flask_app.route('/hej', methods = ['GET','POST']) #The order GET, POST is Important, not POST, GET
 @cross_origin(supports_credentials=True)
@@ -226,11 +266,12 @@ def check():
     return session['uid']
 
 
-@flask_app.route('/kiss',) #The order GET, POST is Important, not POST, GET
+@flask_app.route('/logout',) #The order GET, POST is Important, not POST, GET
 # @cross_origin(supports_credentials=True)
-def kiss():
-    
-    print("FRÅN KISS", session)
+def logout():
+
+    session['loggedIn'] = False
+    print("Logga ut", session)
     return "hej"
 
 #This callback fires when we change data
@@ -257,7 +298,8 @@ def update_graphs(rows, active_cell,derived_virtual_selected_rows):
     print("KOLUMNE:",col_index)
     print("RAD",row_index)
 
-    if  print(db.child("users/").child(session["uid"]).child("Betyg").get().val()) != None:
+
+    if  (db.child("users/").child(session["uid"]).child("Betyg").get().val()) != None:
         #get the dataframe from firebase db
         # print(type(db.child("users/").child(session["uid"]).child("Betyg").get().val()))
         print("Hämta från databas")
