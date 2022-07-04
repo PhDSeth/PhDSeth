@@ -88,9 +88,7 @@ blackbold={'color':'black', 'font-weight': 'bold'}
 #app.css.append_css({'external_url': 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'})
 
 
-df = pd.DataFrame(
-    {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
-)
+
 
 #---------------------------------------------------ORDINARY FUNCTIONS----------------------------
 def create_map():
@@ -132,35 +130,13 @@ initial_active_cell = {"row":0, "column":0}
 
 
 app.layout = html.Div([
-
-    dt.DataTable(
-        id='adding-rows-table',
-        columns=[{
-            'name': df["labels"][i],
-            'id': 'column-{}'.format(i),
-            'deletable': False,
-            'renamable': False,
-            'clearable':True,
-        } for i in range(0, 4)],
-        data=[
-            {'column-{}'.format(i): "" for i in range(1, 5)}
-            for j in range(5)
-        ],
-        editable=True,
-        export_format='xlsx',
-        export_headers='display',
-        merge_duplicate_headers=False,
-        row_deletable=True,
-        active_cell= initial_active_cell,
-        sort_action='native',
-        sort_mode='multi',
-        sort_by=[{'direction': 'asc'}]
-    ),
-
+    dcc.Interval(id="interval-db", interval=50000000*7, n_intervals=0),
+    dcc.Location(id='url'),
+    html.Div(id="tables", children = []),
     html.Button('Add Row', id='editing-rows-button', n_clicks=0),
     html.Button('DELETE', id='delete-button', n_clicks=0),
     html.Div(id='datatable-interactivity-container'),
-    dcc.Store(id='store-data', data = [], storage_type='memory')
+    dcc.Store(id='store-data', storage_type='memory')
 ])
 
 
@@ -270,39 +246,79 @@ def logout():
 
     session['from_db'] = False
     session['loggedIn'] = False
+    session["grade-dash-table"] = False
     print("Logga ut", session)
     return "hej"
 
-#This callback fires when we click in the table, not altering data
-@app.callback(Output('adding-rows-table', 'children'),
-Output('store-data', 'data'),
-Input('adding-rows-table', 'active_cell'),
-Input('adding-rows-table', 'derived_virtual_data'))
-def update_graphs(active_cell, derived_virtual_data):
-    print("togglat!!!!!!!!")
-    col_index = str(active_cell["column"])
-    row_index = str(active_cell["row"])
-    # print("KOLUMNE:",col_index)
-    # print("RAD",row_index)
-    # print(derived_virtual_data)
- 
-    #coord = list
-    #coord[0] = string
-    #Used to keep track of active cell (coordinates)
-    coord = [row_index,col_index]
-    
 
-    return derived_virtual_data, coord
+#Every time we refresh the app, this function is triggered
+@app.callback(Output('tables','children'),
+Input('interval-db', 'n_intervals'))
+def update_graphs(url):
+    
+    # print(url)
+    if  session.get('loggedIn') == True and db.child("users/").child(session["uid"]).child("Betyg").get().val() != None:
+        print("VÅR NYA")
+        print(db.child("users/").child(session["uid"]).child("Betyg").get().val())
+        print(type(db.child("users/").child(session["uid"]).child("Betyg").get().val()))
+        data_db = db.child("users/").child(session["uid"]).child("Betyg").get().val()
+        df = pd.DataFrame(data=data_db)
+        return [
+            dt.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns],
+            editable=True,
+            export_format='xlsx',
+            export_headers='display',
+            merge_duplicate_headers=False,
+            row_deletable=True,
+            active_cell= initial_active_cell,
+            sort_action='native',
+            sort_mode='multi',
+            sort_by=[{'direction': 'asc'}])
+        ]
+
+    else:
+        df = pd.DataFrame(
+            {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
+        )
+        return[
+
+        dt.DataTable(
+            id='adding-rows-table',
+            columns=[{
+                'name': df["labels"][i],
+                'id': 'column-{}'.format(i),
+                'deletable': False,
+                'renamable': False,
+                'clearable':True,
+            } for i in range(0, 4)],
+            data=[
+                {'column-{}'.format(i): "" for i in range(1, 5)}
+                for j in range(5)
+            ],
+            editable=True,
+            export_format='xlsx',
+            export_headers='display',
+            merge_duplicate_headers=False,
+            row_deletable=True,
+            active_cell= initial_active_cell,
+            sort_action='native',
+            sort_mode='multi',
+            sort_by=[{'direction': 'asc'}]
+        ),
+        ]
+
+
 
 
 #This callback fires when we change data
+#returns a graph
 @app.callback(
-    Output('datatable-interactivity-container', "children"),
+    Output('datatable-interactivity-container','children'),
     # Output('adding-rows-table', "data"),
-    Input('adding-rows-table', "derived_virtual_data"),
+    Input('adding-rows-table', 'derived_virtual_data'),
     Input('adding-rows-table', 'active_cell'),
-    Input('store-data', 'data'),
     # State('adding-rows-table', 'active_cell'),s
+    Input("store-data", "data"),
 
     #STATE DOESNT TRIGGER CALLBACK, ONLY INPUT DOES
     State('adding-rows-table', "derived_virtual_selected_rows"),
@@ -319,63 +335,8 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     # `derived_virtual_data=df.to_rows('dict')` when you initialize
     # the component.
 
-    # #This expression will be evaluated each time the user press something
-    # if  session.get("grade-dash-table") == True and session.get('from_db') == False and db.child("users/").child(session["uid"]).child("Betyg").get().val() != None:
-    #     #get the dataframe from firebase db
-    #     # print(type(db.child("users/").child(session["uid"]).child("Betyg").get().val()))
+    #if the user have alrdy entered grades
 
-    #     session["from_db"] = True
-        
-    #     course_name_db = []
-    #     grades_db = []
-    #     credits_db = []
-
-    #     print("Hämta från databas")
-    #     grades_ordered_df = db.child("users/").child(session["uid"]).child("Betyg").get().val()
-    #     for item in grades_ordered_df.items():
-    #         item = list(item)
-    #         grade = item[1]
-
-    #         course_name_db.append(grade["Betyg"])
-    #         grades_db.append(grade["Kursnamn"])
-    #         credits_db.append(grade["Poäng"])
-        
-
-            
-
-        # my_data_db = {
-        #     "Kursnamn": course_name_db,
-        #     "Betyg":grades_db,
-        #     "Poäng": credits_db
-        # }
-        # print(my_data_db)
-        # dff = pd.DataFrame(data=my_data_db)
-        # dff.columns=["column-2", "column-0", "column-3"]
-
-        # # dff = dff.T
-        # print("----------------------")
-        # print(dff)
-        # print(dff['column-0'])
-        # print("--------------------------")
-
-        #column names from firebase, rename
-
-
-        #change data in database if the user change the data
-    # else:
-            #If the user has already inpu
-            # if session.get("grade-dash-table") is True:
-    
-    course_names = []
-    print("COURSE-names INNAN",course_names)
-    # if the user is in the first column
-
-        # course_names.append(current_course_name)
-        # print(current_course_name)
-    #if the user press ths Kurs-column
-    if int(coord[1]) == "0":
-        current_course_name = rows[int(coord[0])]["column-0"]
-        # new_course_name = rows[int(coord[0])]["column-0"]
 
     if derived_virtual_selected_rows is None:
         derived_virtual_selected_rows = []
@@ -386,15 +347,6 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     grades = dff["column-2"].tolist()
     credits = dff["column-3"].tolist()
 
-    if coord[1] == "0":
-        index_row = int(coord[0])
-        current_course_name = course_name[index_row]
-
-    #If the user change course names, we want to handle this.
-    #course name is where col_index is equal to 0
-    print("###########################################")   
-    print(dff)
-    print("###########################################")    
     i = 0
     for c in course_name:
         if i > len(course_name):
@@ -410,17 +362,8 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         if c != "":
             #we need to update the previous
             db.child("users/").child(session["uid"]).child("Betyg").child(c).set(my_data)
-
-            # 
-            #Check if child exist, else delete it
-
-        
-           
             
         i += 1
-    # if int(coord[0])==2:
-        #  db.child("users/").child(session["uid"]).child("Betyg").child("Biologi B").remove()
-
 
     #This sections is required to update the database and to ensure that the database is up to date with the
     #dash-table
@@ -438,8 +381,6 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
 
     #the data_table changes when the user interacts with the table
    
-
-
 
     colors = ['#7FDBFF' if i in derived_virtual_selected_rows else '#0074D9'
             for i in range(len(dff))]
@@ -494,6 +435,8 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         # need to do this check.
         for column in ["column-3"] if column in dff
     ]
+
+
 
 
 # # ‘/’ URL is bound with hello_world() function.
