@@ -58,7 +58,7 @@ import axios from 'axios'
                     const username = this.$fire.auth.currentUser.displayName
                     const email = this.$fire.auth.currentUser.email
                     const data_to_send = {uid,username,email}
-                                const ip = axios.create({withCredentials: true})
+                    const ip = axios.create({withCredentials: true})
 
                     ip.post('http://localhost:8050/logout',data_to_send ).then(response =>{return this.ip = response.data})
 
@@ -83,6 +83,9 @@ import axios from 'axios'
                 const user = auth.currentUser;
 
                 deleteUser(user).then(() => {
+      
+                    const ip = this.$axios.$get('http://localhost:8050/delete_account')
+                    this.ip = ip
                     console.log(snapshot.val())
                 
                 }).catch((error) => {

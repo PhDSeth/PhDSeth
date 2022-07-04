@@ -1,85 +1,42 @@
-from dash import Dash, dash_table, dcc, html
-from dash.dependencies import Input, Output
 import pandas as pd
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import dash_table as dt
+from dash.dependencies import Input, Output, State
 
-df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
+df = pd.read_csv(
+        'https://gist.githubusercontent.com/chriddyp/'
+        'c78bf172206ce24f77d6363a2d754b59/raw/'
+        'c353e8ef842413cae56ae3920b8fd78468aa4cb2/'
+        'usa-agricultural-exports-2011.csv')
 
-app = Dash(__name__)
+app = dash.Dash()
+application = app.server
 
 app.layout = html.Div([
-    dash_table.DataTable(
-        id='datatable-interactivity',
-        columns=[
-            {"name": i, "id": i, "deletable": True, "selectable": True} for i in df.columns
-        ],
-        data=df.to_dict('records'),
-        editable=True,
-        filter_action="native",
-        sort_action="native",
-        sort_mode="multi",
-        column_selectable="single",
-        row_selectable="multi",
-        row_deletable=True,
-        selected_columns=[],
-        selected_rows=[],
-        page_action="native",
-        page_current= 0,
-        page_size= 10,
+    dt.DataTable(
+        id = 'dt1', 
+        columns =  [{"name": i, "id": i,} for i in (df.columns)],
+
     ),
-    html.Div(id='datatable-interactivity-container')
+    html.Div([
+        html.Button(id='submit-button',                
+                children='Submit'
+        )
+    ]),    
+
 ])
 
-@app.callback(
-    Output('datatable-interactivity-container', "children"),
-    Input('datatable-interactivity', "derived_virtual_data"),
-    Input('datatable-interactivity', "derived_virtual_selected_rows"))
-def update_graphs(rows, derived_virtual_selected_rows):
-    # When the table is first rendered, `derived_virtual_data` and
-    # `derived_virtual_selected_rows` will be `None`. This is due to an
-    # idiosyncrasy in Dash (unsupplied properties are always None and Dash
-    # calls the dependent callbacks when the component is first rendered).
-    # So, if `rows` is `None`, then the component was just rendered
-    # and its value will be the same as the component's dataframe.
-    # Instead of setting `None` in here, you could also set
-    # `derived_virtual_data=df.to_rows('dict')` when you initialize
-    # the component.
-    if derived_virtual_selected_rows is None:
-        derived_virtual_selected_rows = []
+@app.callback(Output('dt1','data'),
+            [Input('submit-button','n_clicks')],
+                [State('submit-button','n_clicks')])
 
-    dff = df if rows is None else pd.DataFrame(rows)
-
-    # colors = ['#7FDBFF' if i in derived_virtual_selected_rows else '#0074D9'
-    #           for i in range(len(dff))]
-
-    return [
-        dcc.Graph(
-            id=column,
-            figure={
-                "data": [
-                    {
-                        "x": dff["country"],
-                        "y": dff[column],
-                        "type": "bar",
-                        # "marker": {"color": colors},
-                    }
-                ],
-                "layout": {
-                    "xaxis": {"automargin": True},
-                    "yaxis": {
-                        "automargin": True,
-                        "title": {"text": column}
-                    },
-                    "height": 250,
-                    "margin": {"t": 10, "l": 10, "r": 10},
-                },
-            },
-        )
-        # check if column exists - user may have deleted it
-        # If `column.deletable=False`, then you don't
-        # need to do this check.
-        for column in ["pop", "lifeExp", "gdpPercap"] if column in dff
-    ]
-
+def update_datatable(n_clicks,csv_file):            
+    if n_clicks:                            
+        dfgb = df.groupby(['state']).sum()
+        data_1 = df.to_dict('rows')
+        return data_1
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    application.run(debug=False, port=8080)

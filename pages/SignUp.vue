@@ -99,6 +99,7 @@ export default {
               const username = this.$fire.auth.currentUser.displayName
               const email = this.$fire.auth.currentUser.email
               const data_to_send = {uid,username,email}
+              console.log(data_to_send)
 
               // data = {uid,username,email}
 
@@ -106,8 +107,8 @@ export default {
                   //for session to work.Has to do with cookie compability
               const ip = axios.create({withCredentials: true})
 
-              ip.post('http://localhost:8050/register',data_to_send ).then(response =>{return this.ip = response.data})
-
+              ip.post('http://localhost:8050/register_activity',data_to_send ).then(response =>{return this.ip = response.data})
+              console.log(ip)
                
             });
         })
