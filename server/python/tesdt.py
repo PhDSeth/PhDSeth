@@ -135,9 +135,20 @@ app.layout = html.Div([
     dcc.Interval(id="interval-db", interval=50000000*7, n_intervals=0),
     dcc.Location(id='url'),
     html.Div(id="tables", children = []),
+    html.Div(id="tables2", children = []),
     html.Button('Lägg till ny rad', id='editing-rows-button', n_clicks=0),
     html.Button('Radera tabell', id='delete-button', n_clicks=0),
-    html.Div(id='datatable-interactivity-container'),
+    html.Div([
+            html.H1(children='Din betygsfördelning'),
+
+            html.Div(id='datatable-interactivity-container'),
+
+            # dcc.Graph(
+            #     id='graph1',
+            #     figure=fig
+            # ),  
+        ], className='six columns'),
+    # html.Div(id='datatable-interactivity-container2'),
     dcc.Store(id='store-data', storage_type='memory')
 ])
 
@@ -262,6 +273,11 @@ def update_graphs(url, n_clicks):
             {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
         )
     
+    session["dash-table-reloaded"] = True
+    
+
+    #BÖR HA EN TRY CATCH ELLER NÅGOT; OM MAN SKULLE SKRIVA IN KONSTIGA SAKER SÅ MÅSTE TABELLEN ÄNDÅ KOMMA UPP
+
     # print(url)
     if  session.get('loggedIn') == True and db.child("users/").child(session["uid"]).child("Betyg").get().val() != None:
         print("VÅR NYA")
@@ -295,8 +311,9 @@ def update_graphs(url, n_clicks):
             #         print(i)
  
         my_data = pd.DataFrame(data=my_data)
-
-        print(my_data)
+        print("---------")
+        print("MY DATA: ", my_data)
+        print("---------")
 
 
         return [ 
@@ -407,38 +424,64 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     # the component.
 
     #if the user have alrdy entered grades
-
-
     if derived_virtual_selected_rows is None:
         derived_virtual_selected_rows = []
     
-    print(derived_virtual_data)
+    # print(derived_virtual_data)
 
+    #Every time we reload the page, the dff = df since it's empty
     dff = df if rows is None else pd.DataFrame(rows)
+
+    #SINCE ROWS GET NONE ON PAGE LOAD
+    if rows is None and db.child("users/").child(session["uid"]).child("Betyg").get().val() != None:
+        data_db = db.child("users/").child(session["uid"]).child("Betyg").get()
+        row_grades = []
+        row_courses = []
+        row_codes = []
+        row_points = []
+
+        for obj in data_db.each():
+
+            # print(obj.key()) #Biologi - breddning
+            # print(obj.val()) #{'Betyg': 'VG', 'Kursnamn': 'Biologi - breddning', 'Poäng': '50'}
+            row_grades.append(obj.val()["Betyg"])
+            row_courses.append(obj.val()["Kursnamn"])
+            row_codes.append(obj.val()["Kurskod"])
+            row_points.append(obj.val()["Poäng"])
+
+
+        my_data = {
+            "column-0": row_courses,
+            "column-2":row_grades,
+            "column-3": row_points,
+            "column-1":row_codes
+        }
+
+        dff = pd.DataFrame(data = my_data)
+    
     dff= dff.replace(np.nan,"")
-    print("....................")
-    print(dff)
-    print("....................")
+    
+    if rows is None and db.child("users/").child(session["uid"]).child("Betyg").get().val() == None:
+        dff = df
+    elif rows is not None and db.child("users/").child(session["uid"]).child("Betyg").get().val() == None:
+        dff = pd.DataFrame(data = rows)
+     
+    dff= dff.replace(np.nan,"")
 
     #Empty cell is == None
     #If we erase a column, that column disapears from df
     if "column-0" not in dff:
-        print("0 saknas")
         dff["column-0"] = ""
     
     if "column-1" not in dff: #dont use "elif", use if, otherwise they will not be evaluated
-        print("1 saknas")
         dff["column-1"] = ""
     
     if "column-2" not in dff:
-        print("2 saknas")
         dff["column-2"] = ""
 
     if "column-3" not in dff:
-        print("3 saknas")
         dff["column-3"] = ""
  
-    print(dff)
     course_name = dff["column-0"].tolist()
     code = dff["column-1"].tolist()
     grades = dff["column-2"].tolist()
@@ -457,11 +500,16 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
             "Kurskod":code[i]
         }
         
-        # if c != "" or c != None:
-            #we need to update the previous
-        db.child("users/").child(session["uid"]).child("Betyg").child(c).set(my_data)
+        
+        if c != "" and c != None:
+            # print("MY DATA FRÅN KLICK_FUNKTIONEN", my_data)
+            # print(my_data["Kursnamn"])
+            # print(type(my_data["Kursnamn"]))
+            # we need to update the previous
+            db.child("users/").child(session["uid"]).child("Betyg").child(c).set(my_data)
             
         i += 1
+
 
     #This sections is required to update the database and to ensure that the database is up to date with the
     #dash-table
@@ -469,11 +517,12 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     for obj in all_objects.each():
                 #If the updated cours in data table does not include a particular course in firebase, remove this
                 #from firebase
- 
+        # print("OBJ KEY",obj.key())
+        # print("kol0",list(dff["column-0"]))
         if obj.key() not in list(dff["column-0"]):
-            print(obj.key(), "not in course name")
+            # print(obj.key(), "not in course name")
             db.child("users/").child(session["uid"]).child("Betyg").child(obj.key()).remove()
-    print("...................................")
+    # print("...................................")
     session["grade-dash-table"] = True
     # derived_virtual_selected_rows = dff   
 
