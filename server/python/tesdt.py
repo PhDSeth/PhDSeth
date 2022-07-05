@@ -788,8 +788,30 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
 
 
     classes = map_course_to_classes(d_to_df(d))["Klass"]
+    
+    input_pie_chart_function = map_course_to_classes(d_to_df(d))
 
+    def pie_chart_classes(map_course_to_classes):
 
+        #We want to put each unique class in this list want to put the number of occurences in this list
+        classes_df = { "classes" :[],
+                    "occurance": []
+            }
+
+        #Find unique classes
+        for ind in map_course_to_classes["Klass"]:
+            if ind not in classes_df["classes"]:
+                classes_df["classes"].append(ind)
+                classes_df["occurance"].append(1)
+            else:
+                index = list(classes_df["classes"]).index(ind)
+                updated_nbr = classes_df["occurance"][index] + 1
+                classes_df["occurance"][index] = updated_nbr
+        
+        fig = px.pie(values= classes_df["occurance"], names=classes_df["classes"], hole =.3)
+        return fig
+    
+    pie_chart = pie_chart_classes(input_pie_chart_function)
 
      #------------ END FUNCTIONS TO CALCULATE YOUR GRADE BASED ON DASH TABLE INPUT END---------------------------
 
@@ -847,11 +869,8 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         # If `column.deletable=False`, then you don't
         # need to do this check.
         for column in ["column-0"] if column in dff
-    ], your_grade, px.pie(
-        data_frame = classes,
-        names =classes,
-        hole =.3
-    )
+    ], your_grade, pie_chart
+    
 
 
 
