@@ -62,8 +62,16 @@ config = {
 }
 
 df = pd.DataFrame(
-            {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
+            {"labels": ["Kurs", "Kurskod", "Betyg", "Storlek"],}
         )
+
+    
+grade_and_their_score_dict= {
+  'Betyg': ['MVG', 'VG', 'G', 'IG', 'A', 'B', 'C', 'D', 'E', 'F'],
+  'Score': [ 20,   15,    10,   0, 20, 17.5, 15,  12.5, 10,  0] 
+}
+
+grade_and_their_score_dict_df = pd.DataFrame(data=grade_and_their_score_dict)
 
 firebase = Firebase(config)
 
@@ -147,13 +155,12 @@ app.layout = html.Div([
             #     id='graph1',
             #     figure=fig
             # ),  
+            html.H1(children='Ditt betyg'),
+            html.Div(id="your_grade", children=[])
         ], className='six columns'),
     # html.Div(id='datatable-interactivity-container2'),
     dcc.Store(id='store-data', storage_type='memory')
 ])
-
-
-
 
 
 @app.callback(
@@ -270,7 +277,7 @@ Input('interval-db', 'n_intervals'),
 Input('delete-button', 'n_clicks'))
 def update_graphs(url, n_clicks):
     df = pd.DataFrame(
-            {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
+            {"labels": ["Kurs", "Kurskod", "Betyg", "Storlek"],}
         )
     
     session["dash-table-reloaded"] = True
@@ -290,11 +297,11 @@ def update_graphs(url, n_clicks):
         for obj in data_db.each():
 
             print(obj.key()) #Biologi - breddning
-            print(obj.val()) #{'Betyg': 'VG', 'Kursnamn': 'Biologi - breddning', 'Poäng': '50'}
+            print(obj.val()) #{'Betyg': 'VG', 'Kurs': 'Biologi - breddning', 'Storlek': '50'}
             row_grades.append(obj.val()["Betyg"])
-            row_courses.append(obj.val()["Kursnamn"])
+            row_courses.append(obj.val()["Kurs"])
             row_codes.append(obj.val()["Kurskod"])
-            row_points.append(obj.val()["Poäng"])
+            row_points.append(obj.val()["Storlek"])
 
 
         my_data = {
@@ -402,7 +409,7 @@ def update_graphs(url, n_clicks):
 #returns a graph
 @app.callback(
     Output('datatable-interactivity-container','children'),
-    # Output('adding-rows-table', "data"),
+    Output('your_grade', "children"),
     Input('adding-rows-table', 'derived_virtual_data'),
     Input('adding-rows-table', 'active_cell'),
     # State('adding-rows-table', 'active_cell'),s
@@ -427,6 +434,10 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     if derived_virtual_selected_rows is None:
         derived_virtual_selected_rows = []
     
+    #d = {'Kurs': ['RELIGIONSKUNSKAP A','kroppen som uttrycksmedel','Affärsjuridik','Rättskunskap'], 
+    #  'Storlek': [100,50,50,100,100], 
+    #  'Betyg': ['VG','G','VG','VG','VG']}
+
     # print(derived_virtual_data)
 
     #Every time we reload the page, the dff = df since it's empty
@@ -443,11 +454,11 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         for obj in data_db.each():
 
             # print(obj.key()) #Biologi - breddning
-            # print(obj.val()) #{'Betyg': 'VG', 'Kursnamn': 'Biologi - breddning', 'Poäng': '50'}
+            # print(obj.val()) #{'Betyg': 'VG', 'Kurs': 'Biologi - breddning', 'Storlek': '50'}
             row_grades.append(obj.val()["Betyg"])
-            row_courses.append(obj.val()["Kursnamn"])
+            row_courses.append(obj.val()["Kurs"])
             row_codes.append(obj.val()["Kurskod"])
-            row_points.append(obj.val()["Poäng"])
+            row_points.append(obj.val()["Storlek"])
 
 
         my_data = {
@@ -460,7 +471,7 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         dff = pd.DataFrame(data = my_data)
     
     dff= dff.replace(np.nan,"")
-    
+
     if rows is None and db.child("users/").child(session["uid"]).child("Betyg").get().val() == None:
         dff = df
     elif rows is not None and db.child("users/").child(session["uid"]).child("Betyg").get().val() == None:
@@ -487,6 +498,14 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     grades = dff["column-2"].tolist()
     credits = dff["column-3"].tolist()
 
+    # d is used to calculate grades etc
+    d = {
+            "Kurs": course_name,
+            "Betyg":grades,
+            "Storlek": list(map(int, credits)), #change from strings to ints
+            "Kurskod":code
+        }
+
     i = 0
     for c in course_name:
         if i > len(course_name):
@@ -494,22 +513,21 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         
         
         my_data = {
-            "Kursnamn": c,
+            "Kurs": c,
             "Betyg":grades[i],
-            "Poäng": credits[i],
+            "Storlek": credits[i],
             "Kurskod":code[i]
         }
         
         
         if c != "" and c != None:
             # print("MY DATA FRÅN KLICK_FUNKTIONEN", my_data)
-            # print(my_data["Kursnamn"])
-            # print(type(my_data["Kursnamn"]))
+            # print(my_data["Kurs"])
+            # print(type(my_data["Kurs"]))
             # we need to update the previous
             db.child("users/").child(session["uid"]).child("Betyg").child(c).set(my_data)
             
         i += 1
-
 
     #This sections is required to update the database and to ensure that the database is up to date with the
     #dash-table
@@ -528,6 +546,66 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
 
     #the data_table changes when the user interacts with the table
    
+
+        #
+    #
+    #------------FUNCTIONS TO CALCULATE YOUR GRADE BASED ON DASH TABLE INPUT-----------------------------------
+
+    def grade(df):
+     #Om betygen INTE är en String, betyder det att vi har använt oss av grade-funkionen en gång innan. Då ska vi 
+     #bara returnera df utan att gå in och ändra
+     if type(df['Betyg'][0]) != str:
+          return df
+          
+     
+     #Loopa igenom dina betyg, dataframe
+     for ind in df.index:
+
+          string_grade = df['Betyg'][ind] # T.ex "VG" eller "B"
+
+          int_grade_index = list(grade_and_their_score_dict_df['Betyg']).index(string_grade.upper()) #Få fram index för där "VG" Ligger, så vi kan hämta motsvarande score
+          #int_grade_index = 2 #Få fram index för där "VG" Ligger, så vi kan hämta motsvarande score
+          
+          int_grade = grade_and_their_score_dict_df['Score'][int_grade_index]
+          df['Betyg'][ind] = int_grade
+       
+     
+     return df
+
+
+    def calc_tot_points(d):
+     df = pd.DataFrame(data=d) #en lokal kopia av betygen
+     tot_points = 0
+     for ind in df['Storlek']:
+          tot_points += ind
+     return tot_points
+
+    def norm_grade(d):
+     df = pd.DataFrame(data=d)
+     #Använder hjälpfunktionen för att beräkna
+     df1 = grade(df)
+     tot_points = calc_tot_points(d)
+     for ind in df1.index:
+          grade1 = df1['Betyg'][ind] #T.ex "MVG" eller "A"
+          points =df1['Storlek'][ind] #T.ex 100 eller 50
+          normed_grade = grade1*points/tot_points
+          df1['Betyg'][ind] = normed_grade
+     return df1
+
+    def calc_grade(d):
+     df = norm_grade(d) #Calling the norm grade function to normalize your grade
+     grade1 = 0
+     for ind in df.index:
+          grade1 = grade1 + df['Betyg'][ind]
+     #print('Ditt betyg (utan meritpoäng) är: ', grade)
+     #Meritpoäng is given for 
+     return grade1
+
+    #Your grades is updated everytime the dash tables is updated
+    your_grade = calc_grade(d)
+     #------------ END FUNCTIONS TO CALCULATE YOUR GRADE BASED ON DASH TABLE INPUT END---------------------------
+
+
 
     colors = ['#7FDBFF' if i in derived_virtual_selected_rows else '#0074D9'
             for i in range(len(dff))]
@@ -581,7 +659,7 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         # If `column.deletable=False`, then you don't
         # need to do this check.
         for column in ["column-0"] if column in dff
-    ]
+    ], your_grade
 
 
 
