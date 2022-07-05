@@ -6,10 +6,23 @@ import numpy as np
 import dash                     #(version 1.0.0)
 import dash_table as dt
 import dash_core_components as dcc
-
+from data_for_training import traning_data_courses
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import pprint
+from nltk.tokenize.treebank import TreebankWordDetokenizer
+from nltk.stem.lancaster import LancasterStemmer
+from numpy.core.fromnumeric import shape
+from nltk.stem import SnowballStemmer
+import plotly.express as px
+import matplotlib.pyplot as plt
+from sklearn import preprocessing #convert text to numerical inputs
+import pandas as pd
+import numpy as np
+from itertools import chain
+import mplcursors
+import json 
+import nltk
 
 
 import plotly.offline as py     #(version 4.4.1)
@@ -40,10 +53,14 @@ flask_app.config['SESSION_TYPE']='filesystem'
 Session(flask_app)
 CORS(flask_app,supports_credentials=True)
 
+# word stemmer
+stemmer = SnowballStemmer("swedish")
+#stemmer = LancasterStemmer()
+nltk.download('punkt')
 
 
 
-
+training_data = traning_data_courses()
 data_updated_table = "hej"
 # The route() function of the Flask class is a decorator,
 # which tells the application which URL should call
@@ -98,9 +115,10 @@ blackbold={'color':'black', 'font-weight': 'bold'}
 #app.css.append_css({'external_url': 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'})
 
 
-
-
+#
+#
 #---------------------------------------------------ORDINARY FUNCTIONS----------------------------
+
 def create_map():
 #Check first if logged in and authoirized
     schools = db.child("schoolsContactInfo/").get()
@@ -133,7 +151,6 @@ def create_map():
     return df
 
 df_map = create_map()
-#----------------------------------------------END ON     ORDINARY FUNCTIONS-----------------------
 
 initial_active_cell = {"row":0, "column":0}
 #Här lacerar vi alla dic/element på webbsidan
@@ -547,10 +564,11 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     #the data_table changes when the user interacts with the table
    
 
-        #
+    #
     #
     #------------FUNCTIONS TO CALCULATE YOUR GRADE BASED ON DASH TABLE INPUT-----------------------------------
 
+    #***********CALC GRADE****************************
     def grade(df):
      #Om betygen INTE är en String, betyder det att vi har använt oss av grade-funkionen en gång innan. Då ska vi 
      #bara returnera df utan att gå in och ändra
@@ -603,6 +621,174 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
 
     #Your grades is updated everytime the dash tables is updated
     your_grade = calc_grade(d)
+    #***********CALC GRADE****************************
+
+    #***********STEM TRANING DATA TO GET THE CLASSES THAT EACH COURSE BELONGS TO*************
+
+    def course_score_class():
+        dict_all_courses_points = pd.DataFrame({
+            'Betyg: ': [],
+            'Kurs: ': [],
+            'Score: ': [],
+            'Klass: ': [],
+            })
+        return dict_all_courses_points
+
+    dict_all_courses_points = course_score_class()
+
+
+
+    #From dict to dataframe
+    #Convert grades from dash table to dataframe
+    def d_to_df(d):
+        courses = pd.DataFrame(data =d)
+        return courses
+    #------------------------------------------------------------------------------------------------------------------------
+    #Output: A dict with classes and corresponding words that belongs to each class. Based on our traning data
+    #Ex: {'naturvetenskap' : ['fysik, matematik, biologi]}
+    def tokenize_stem_trainingData():
+    
+        # capture unique stemmed words in the training corpus
+        #corpus_words = {}
+        class_words_training_data = {}
+        index = 0
+        # turn a list into a set (of unique items) and then a list again (this removes duplicates)
+        #Classes is the names of every unique class we have identified in our grade
+        classes = list(set([a['class'] for a in training_data]))
+        for c in classes:
+            # prepare a list of words within each class
+            class_words_training_data[c] = []
+            # loop through each sentence in our training data
+            #Training data conains all data, where data is one line class: blabla, word: blabla
+
+        for data in training_data:
+            
+            if 'breddning' in data['word'] or 'specialisering' in data['word'] or '5' in data['word'] or '4' in data['word'] or '3' in data['word'] or '2' in data['word']:
+                #APPEND insert a word as a ONE, for exmpale "biologi" is added as "biologi", while EXTEND will add "b","i","o","l","o","g","i"
+                # print('träningsdata', data)
+                # time.sleep(2)
+                class_words_training_data[data['class']].append(data['word'])
+            
+            else:
+                # tokenize each sentence in our traning data into words
+                #For example: "matematik specialisering" => "matematik", "specialisering"
+                for word in nltk.word_tokenize(data['word']):  
+                    # stem and lowercase each word
+                    stemmed_word = stemmer.stem(word.lower())
+                    # print('word in tokenized wordk',  word)
+                    # time.sleep(2)
+                    # print('stemmed',  stemmed_word)
+                    # time.sleep(2)
+                    # have we not seen this word already?
+                    #if stemmed_word not in corpus_words:
+                    #corpus_words[stemmed_word] = 1
+                    #corpus_words[stemmed_word] += 1
+                    # add the word to our words in class list
+                    class_words_training_data[data['class']].extend([stemmed_word])
+        return class_words_training_data
+
+
+    class_words_training_data = tokenize_stem_trainingData()
+    #creates a list with all courses and their corresponding class and score
+    #This function is called upon in the "summarize_class_scores" function
+    #INput: A grade dict   kurs    | storlek | betyg
+    #                    Biologi A      50        VG
+    #Output: class |score|course
+    #        miljö | 15 | Biologi A
+    #naturvetenskap| 15 | Biologi A
+    #Mappar alla kurser vi har läst mot olika klasser
+    def map_course_to_classes(list_course):
+        #Create some glabal attributes, which will be used in the calculate_class_score function
+
+        #Courses that contains any of the following words, will not be tokenized or stemmed
+        excluding_words = ['breddning', 'specialisering', '5', '4','3','2',]
+
+
+        course_list = []
+        grade_list = []
+        class_list = []
+        score_list = []
+
+        
+        for ind in list_course.index:
+            true_false = []
+            token_words = []
+        
+            #Each course in our grades is separately stored in these three variables
+            course = list_course['Kurs'][ind]
+            grades = list_course['Betyg'][ind]
+            size = list_course['Storlek'][ind]
+            data = {'Kurs': [course], 'Storlek': [size],'Betyg': [grades]}
+            #add all courses to the datafram
+            #For each course in our grade, we loop thorugh each class_name in our training data to see if there are any courses that match
+            #for every course, we loop through each class to see if we have a match
+            for word in nltk.word_tokenize(course):
+                word = word.replace('och', '')
+                word = word.replace('-', '')
+                word = word.replace('på', '')
+                token_words.append(word)
+                #If our course contains any of the words included in the excluding_words array,
+                #we want to append the course directly, without any further stemming etc.
+                if word in excluding_words:
+                    true_false.append(True)
+                else:
+                    true_false.append(False)
+
+            #iterate through every key in our training data
+            #we want to find what class our course belongs to
+            for class_name in class_words_training_data.keys():
+            # time.sleep(1)
+
+            #Iterate thorugh each word (value) in key
+            #for class_word in class_words_training_data[class_name]:
+
+                #All words in excludin_words are stored in the traing data as is, without being stemmed/tokenized, see function "stokenize_stem_trainingData"
+                if (course in class_words_training_data[class_name] and any(true_false)): #any gives true if the list contains any true
+                    
+                    #Add class name, course name and score to each list, so these can be put into adatafram later
+                    score = calc_grade(data)
+                    #we want to se which class the course corresponds to
+                    class_list.append(class_name)
+                    grade_list.append(grades)
+                    course_list.append(course)
+                    score_list.append(score)
+                    # time.sleep(2)
+
+                #if the word doesn't contain any of the words in exckluding_words array, tokenize and stem it!
+                if (any(true_false)==False):
+
+                    for token_word in token_words:
+
+                        # check to see if the stem of the word (the course in our grades that has been stemmed) is in any of our classes (from trainng data stemmed)
+                        #Iterate through all classes and see if we have a match, that is, if the stemmed word is present in any class
+                        if stemmer.stem(token_word.lower()) in class_words_training_data[class_name]:
+                            # print('stemmer fanns i klassen', stemmer.stem(word.lower()))
+                            # print('kursen lades till i',class_name)
+                            # time.sleep(2)
+                            score = calc_grade(data)
+                            #Add class name, course name and score to each list, so these can be put into adatafram later
+                            class_list.append(class_name)
+                            grade_list.append(grades)
+                            course_list.append(course)
+                            score_list.append(score)
+                            #if show_details
+                            #print ("match: %s" % stemmer.stem(word.lower()))
+                            #print(course_class, "och", points
+            
+
+        dict_all_courses_points['Klass']=class_list
+        dict_all_courses_points['Score']=score_list
+        dict_all_courses_points['Kurs']=course_list
+        #Drop all rows/columns that contain NaN-values
+        dict_all_courses_points.dropna(how='all', axis=1, inplace=True) 
+        #returns a dict with all courses/grades/classes
+        return dict_all_courses_points.drop_duplicates() #drop all duplicates, so we dont need to worry about the structure/format of the training data 
+
+    
+    print("map courses to classes: \n",map_course_to_classes(d_to_df(d)))
+
+
+
      #------------ END FUNCTIONS TO CALCULATE YOUR GRADE BASED ON DASH TABLE INPUT END---------------------------
 
 
