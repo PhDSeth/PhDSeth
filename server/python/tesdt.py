@@ -165,16 +165,20 @@ app.layout = html.Div([
     html.Button('Radera tabell', id='delete-button', n_clicks=0),
     html.Div([
             html.H1(children='Din betygsfördelning'),
-
             html.Div(id='datatable-interactivity-container'),
-
             #not decided type of graph
             dcc.Graph(
                 id='graph-classes',
                 figure={}
             ),  
             html.H1(children='Ditt betyg'),
-            html.Div(id="your_grade", children=[])
+            html.Div(id="your_grade", children=[]),
+
+            html.Div([
+            html.H1(children='ANTAL BETYG'),
+            html.Div(id="nbr_grades", children=[])
+
+            ]),
         ], className='six columns'),
     # html.Div(id='datatable-interactivity-container2'),
     dcc.Store(id='store-data', storage_type='memory')
@@ -429,9 +433,10 @@ def update_graphs(url, n_clicks):
     Output('datatable-interactivity-container','children'),
     Output('your_grade', "children"),
     Output('graph-classes', "figure"),
+    Output('nbr_grades', "children"),
     Input('adding-rows-table', 'derived_virtual_data'),
     Input('adding-rows-table', 'active_cell'),
-    # State('adding-rows-table', 'active_cell'),s
+    # State('adding-rows-table', 'active_cell'),s 
     Input("store-data", "data"),
 
     #STATE DOESNT TRIGGER CALLBACK, ONLY INPUT DOES
@@ -791,6 +796,32 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     
     input_pie_chart_function = map_course_to_classes(d_to_df(d))
 
+    def set_grades_df(d):
+        df = pd.DataFrame(data=d)
+        return df
+
+    number_of_grades = {
+        "Betyg":[],
+        "Antal":[]
+    }
+
+    def calc_nbr_grade(d,g):
+        df = set_grades_df(d)
+        nbr_of_grade = 0
+        number_of_grades["Betyg"].append(g)
+        for ind in df.index:
+            if g == df['Betyg'][ind]:
+                nbr_of_grade += 1
+        number_of_grades["Antal"].append(nbr_of_grade)
+        return number_of_grades #return number of MVG, VG etc
+    #Description: Antal "VG" (exempelvis) i dina betyg
+    #INput: grade dic, och ett betyg, ex "VG", eller "G"
+    for g in grade_and_their_score_dict["Betyg"]: #MVG, VG, G, IG, A, B etc
+        number_of_grades = calc_nbr_grade(d,g)
+
+       
+    print("NUMBER OF GRADES", number_of_grades)
+
     def pie_chart_classes(map_course_to_classes):
 
         #We want to put each unique class in this list want to put the number of occurences in this list
@@ -869,7 +900,7 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         # If `column.deletable=False`, then you don't
         # need to do this check.
         for column in ["column-0"] if column in dff
-    ], your_grade, pie_chart
+    ], your_grade, pie_chart, [number_of_grades["Betyg"][0], ":" ,number_of_grades["Antal"][0]]
     
 
 
