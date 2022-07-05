@@ -61,7 +61,9 @@ config = {
 
 }
 
-
+df = pd.DataFrame(
+            {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
+        )
 
 firebase = Firebase(config)
 
@@ -133,8 +135,8 @@ app.layout = html.Div([
     dcc.Interval(id="interval-db", interval=50000000*7, n_intervals=0),
     dcc.Location(id='url'),
     html.Div(id="tables", children = []),
-    html.Button('Add Row', id='editing-rows-button', n_clicks=0),
-    html.Button('DELETE', id='delete-button', n_clicks=0),
+    html.Button('Lägg till ny rad', id='editing-rows-button', n_clicks=0),
+    html.Button('Radera tabell', id='delete-button', n_clicks=0),
     html.Div(id='datatable-interactivity-container'),
     dcc.Store(id='store-data', storage_type='memory')
 ])
@@ -253,18 +255,61 @@ def logout():
 
 #Every time we refresh the app, this function is triggered
 @app.callback(Output('tables','children'),
-Input('interval-db', 'n_intervals'))
-def update_graphs(url):
+Input('interval-db', 'n_intervals'),
+Input('delete-button', 'n_clicks'))
+def update_graphs(url, n_clicks):
+    df = pd.DataFrame(
+            {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
+        )
     
     # print(url)
     if  session.get('loggedIn') == True and db.child("users/").child(session["uid"]).child("Betyg").get().val() != None:
         print("VÅR NYA")
-        print(db.child("users/").child(session["uid"]).child("Betyg").get().val())
-        print(type(db.child("users/").child(session["uid"]).child("Betyg").get().val()))
-        data_db = db.child("users/").child(session["uid"]).child("Betyg").get().val()
-        df = pd.DataFrame(data=data_db)
-        return [
-            dt.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns],
+        data_db = db.child("users/").child(session["uid"]).child("Betyg").get()
+        row_grades = []
+        row_courses = []
+        row_codes = []
+        row_points = []
+
+        for obj in data_db.each():
+
+            print(obj.key()) #Biologi - breddning
+            print(obj.val()) #{'Betyg': 'VG', 'Kursnamn': 'Biologi - breddning', 'Poäng': '50'}
+            row_grades.append(obj.val()["Betyg"])
+            row_courses.append(obj.val()["Kursnamn"])
+            row_codes.append(obj.val()["Kurskod"])
+            row_points.append(obj.val()["Poäng"])
+
+
+        my_data = {
+            "column-0": row_courses,
+            "column-2":row_grades,
+            "column-3": row_points,
+            "column-1":row_codes
+        }
+            # for key in course_dict.keys():
+            #     value_row = course_dict.values()
+            #     print(value_row)#dict_values(['VG', 'BI1203', 'Biologi - breddning', '50'])
+            #     for i in value_row:
+            #         # rows.append(i)
+            #         print(i)
+ 
+        my_data = pd.DataFrame(data=my_data)
+
+        print(my_data)
+
+
+        return [ 
+            dt.DataTable(
+            id='adding-rows-table',
+            columns=[{
+                'name': df["labels"][i],
+                'id': 'column-{}'.format(i),
+                'deletable': False,
+                'renamable': False,
+                'clearable':True,
+            } for i in range(0, 4)],
+            data=my_data.to_dict('records'),
             editable=True,
             export_format='xlsx',
             export_headers='display',
@@ -273,13 +318,11 @@ def update_graphs(url):
             active_cell= initial_active_cell,
             sort_action='native',
             sort_mode='multi',
-            sort_by=[{'direction': 'asc'}])
+            sort_by=[{'direction': 'asc'}]
+        ),
         ]
 
-    else:
-        df = pd.DataFrame(
-            {"labels": ["Kurs", "Kurskod", "Betyg", "Poäng"],}
-        )
+    elif n_clicks >= 1:
         return[
 
         dt.DataTable(
@@ -304,8 +347,36 @@ def update_graphs(url):
             sort_action='native',
             sort_mode='multi',
             sort_by=[{'direction': 'asc'}]
-        ),
-        ]
+        ),]
+    
+    else:
+        return[
+
+        dt.DataTable(
+            id='adding-rows-table',
+            columns=[{
+                'name': df["labels"][i],
+                'id': 'column-{}'.format(i),
+                'deletable': False,
+                'renamable': False,
+                'clearable':True,
+            } for i in range(0, 4)],
+            data=[
+                {'column-{}'.format(i): "" for i in range(1, 5)}
+                for j in range(5)
+            ],
+            editable=True,
+            export_format='xlsx',
+            export_headers='display',
+            merge_duplicate_headers=False,
+            row_deletable=True,
+            active_cell= initial_active_cell,
+            sort_action='native',
+            sort_mode='multi',
+            sort_by=[{'direction': 'asc'}]
+        ),]
+
+        
 
 
 
@@ -340,10 +411,36 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
 
     if derived_virtual_selected_rows is None:
         derived_virtual_selected_rows = []
+    
+    print(derived_virtual_data)
 
     dff = df if rows is None else pd.DataFrame(rows)
-  
+    dff= dff.replace(np.nan,"")
+    print("....................")
+    print(dff)
+    print("....................")
+
+    #Empty cell is == None
+    #If we erase a column, that column disapears from df
+    if "column-0" not in dff:
+        print("0 saknas")
+        dff["column-0"] = ""
+    
+    if "column-1" not in dff: #dont use "elif", use if, otherwise they will not be evaluated
+        print("1 saknas")
+        dff["column-1"] = ""
+    
+    if "column-2" not in dff:
+        print("2 saknas")
+        dff["column-2"] = ""
+
+    if "column-3" not in dff:
+        print("3 saknas")
+        dff["column-3"] = ""
+ 
+    print(dff)
     course_name = dff["column-0"].tolist()
+    code = dff["column-1"].tolist()
     grades = dff["column-2"].tolist()
     credits = dff["column-3"].tolist()
 
@@ -356,12 +453,13 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         my_data = {
             "Kursnamn": c,
             "Betyg":grades[i],
-            "Poäng": credits[i]
+            "Poäng": credits[i],
+            "Kurskod":code[i]
         }
         
-        if c != "":
+        # if c != "" or c != None:
             #we need to update the previous
-            db.child("users/").child(session["uid"]).child("Betyg").child(c).set(my_data)
+        db.child("users/").child(session["uid"]).child("Betyg").child(c).set(my_data)
             
         i += 1
 
@@ -385,7 +483,7 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     colors = ['#7FDBFF' if i in derived_virtual_selected_rows else '#0074D9'
             for i in range(len(dff))]
 
-
+    
     for grade in dff.index:
         if dff["column-2"][grade] == "MVG" or dff["column-2"][grade] == "A":
             dff["column-2"][grade] = 20
@@ -433,7 +531,7 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         # check if column exists - user may have deleted it
         # If `column.deletable=False`, then you don't
         # need to do this check.
-        for column in ["column-3"] if column in dff
+        for column in ["column-0"] if column in dff
     ]
 
 

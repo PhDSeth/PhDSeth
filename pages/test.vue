@@ -13,13 +13,13 @@ import { getDatabase, ref, set } from "firebase/database";
 methods:{
 
 //https://firebase.google.com/docs/database/web/read-and-write
- writeUserData() {
-  const db = getDatabase();
-  set(ref(db, 'users/' + "12"), {
-    username: "Cecilias",
-    email: "c@gmail.com",
-  });
-},
+//  writeUserData() {
+//   const db = getDatabase();
+//   set(ref(db, 'users/' + "12"), {
+//     username: "Cecilias",
+//     email: "c@gmail.com",
+//   });
+// },
 
 }
     }
