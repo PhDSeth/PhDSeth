@@ -168,10 +168,11 @@ app.layout = html.Div([
 
             html.Div(id='datatable-interactivity-container'),
 
-            # dcc.Graph(
-            #     id='graph1',
-            #     figure=fig
-            # ),  
+            #not decided type of graph
+            dcc.Graph(
+                id='graph-classes',
+                figure={}
+            ),  
             html.H1(children='Ditt betyg'),
             html.Div(id="your_grade", children=[])
         ], className='six columns'),
@@ -427,6 +428,7 @@ def update_graphs(url, n_clicks):
 @app.callback(
     Output('datatable-interactivity-container','children'),
     Output('your_grade', "children"),
+    Output('graph-classes', "figure"),
     Input('adding-rows-table', 'derived_virtual_data'),
     Input('adding-rows-table', 'active_cell'),
     # State('adding-rows-table', 'active_cell'),s
@@ -784,8 +786,8 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         #returns a dict with all courses/grades/classes
         return dict_all_courses_points.drop_duplicates() #drop all duplicates, so we dont need to worry about the structure/format of the training data 
 
-    
-    print("map courses to classes: \n",map_course_to_classes(d_to_df(d)))
+
+    classes = map_course_to_classes(d_to_df(d))["Klass"]
 
 
 
@@ -845,7 +847,11 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         # If `column.deletable=False`, then you don't
         # need to do this check.
         for column in ["column-0"] if column in dff
-    ], your_grade
+    ], your_grade, px.pie(
+        data_frame = classes,
+        names =classes,
+        hole =.3
+    )
 
 
 
