@@ -795,6 +795,7 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         return dict_all_courses_points.drop_duplicates() #drop all duplicates, so we dont need to worry about the structure/format of the training data 
 
 
+    #classes contains all classes (can appear several times)
     classes = map_course_to_classes(d_to_df(d))["Klass"]
     
     input_pie_chart_function = map_course_to_classes(d_to_df(d))
@@ -968,8 +969,8 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
 
 
     colors_grade_occurence_plot = {
-    'background': '#111111',
-    'text': '#7FDBFF'
+    'background': '#FFFFFF',
+    'text': '#000000'
         }
     #"Fruit": ["class A", "Class B", "Class C", "Class A", "Class B", "Class C"], 
     #get unique classes and make it larger accoring to following rule: unique classes * nbr unique grades
@@ -983,31 +984,17 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
     # print("list(set(classes))", list(set(classes))) #['beteende', 'fysisk hälsa', 'träning', 'medicin', 'språk', 'mental hälsa', 'juridik', 'ekonomi', 'naturvetenskap', 'samhällsvetenskap', 'humanioria']
     grades_class_amount_occurence_plot = []
 
-    
 
-
-#SORTERA number_of_grades!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-
-
-
- #NUMBER OF GRADES {'Betyg': ['G', 'MVG', 'VG', 'IG'], 'Antal': [6, 12, 7, 1]}
+    #NUMBER OF GRADES {'Betyg': ['G', 'MVG', 'VG', 'IG'], 'Antal': [6, 12, 7, 1]}
     #iterate thorugh your unique grades
-    for a_class in list(set(classes)):
-         for a_grade in number_of_grades["Betyg"]:
+    for a_grade in number_of_grades["Betyg"]:
+        for a_class in list(set(classes)):
+            #For example IG in class "miljö", we want to iterate every grade, not only the first
             nbr_grade_in_class = nbr_grade_in_givven_class(d,a_grade, a_class)
             grades_class_amount_occurence_plot.append(nbr_grade_in_class)
 
-    #number_of_grades = {'Betyg': ['G', 'MVG', 'VG', 'IG'], 'Antal': [6, 12, 7, 1]}
 
-    # df = pd.DataFrame({
-    # "Fruit": ["class A", "Class B", "Class C", "Class A", "Class B", "Class C"], 
-    # amount = antal unika betyg * antalet klasser (x-axeln)
-    # "Amount": [4, 1, 2, 2, 4, 5],
-    # "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-    #     })
+    #number_of_grades = {'Betyg': ['G', 'MVG', 'VG', 'IG'], 'Antal': [6, 12, 7, 1]}
 
     #Måste ha rätt mappning
     grades_occurence_plot = []
@@ -1015,11 +1002,14 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         for j in list(set(classes)):
             grades_occurence_plot.append(i)
 
+
     df_grade_class_occurence_plot = pd.DataFrame({
             "classes": unique_class_occurence_plot,#string
             "amount": grades_class_amount_occurence_plot, #int
             "grades": grades_occurence_plot #string
         })
+
+
 
     fig_grade_occurence = px.bar(df_grade_class_occurence_plot, x="classes", y="amount", color="grades", barmode="group")
 
