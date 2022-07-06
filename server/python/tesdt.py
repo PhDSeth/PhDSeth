@@ -143,8 +143,6 @@ def create_map():
 
 
             i +=1
-    print(cities)
-    print(coordinates_all)
     data = {"city":cities, "coord":coordinates_all}
     df = pd.DataFrame(data)
     
@@ -171,6 +169,11 @@ app.layout = html.Div([
                 id='graph-classes',
                 figure={}
             ),  
+
+            dcc.Graph(
+                id='graph-classes-grade-occurence',
+                figure={}
+            ),  
             html.H1(children='Ditt betyg'),
             html.Div(id="your_grade", children=[]),
 
@@ -191,7 +194,6 @@ app.layout = html.Div([
     State('adding-rows-table', 'data'),
     State('adding-rows-table', 'columns'))
 def add_row(n_clicks, rows, columns):
-    print(rows)
     if n_clicks > 0:
         rows.append({c['id']: '' for c in columns})
     return rows
@@ -223,9 +225,9 @@ def register():
     #Check if the user has been registered earlier
     # uid = jsonData["uid"]
     # if db.child("users/").child("ggg").get().val() != None: #if the user exists
-    print("SESSION INNAN",session)
+    # print("SESSION INNAN",session)
     jsonData = request.get_json()
-    print(jsonData)
+    # print(jsonData)
 
     # uid = jsonData["uid"]
     session['uid'] = jsonData["uid"]
@@ -244,7 +246,7 @@ def register():
     
     #A newly registered user should have their sessio[grade-dash-table] == False
     #before they have added their grades
-    print("SESSION EFTER",session)
+    # print("SESSION EFTER",session)
 
     return "hej"
 
@@ -264,15 +266,15 @@ def delete():
 @cross_origin(supports_credentials=True)
 def check():
     jsonData = request.get_json()
-    print("jsonData", jsonData)
+    # print("jsonData", jsonData)
     uid = jsonData["uid"]
     session['uid'] = uid
 
 
-    print(session)
+    # print(session)
     if session['uid'] != uid:
         session['uid'] = uid
-        print(session)
+        # print(session)
       
     else:
         print("redan satt")
@@ -289,7 +291,7 @@ def logout():
     session['from_db'] = False
     session['loggedIn'] = False
     session["grade-dash-table"] = False
-    print("Logga ut", session)
+    # print("Logga ut", session)
     return "hej"
 
 
@@ -309,7 +311,7 @@ def update_graphs(url, n_clicks):
 
     # print(url)
     if  session.get('loggedIn') == True and db.child("users/").child(session["uid"]).child("Betyg").get().val() != None:
-        print("VÅR NYA")
+        # print("VÅR NYA")
         data_db = db.child("users/").child(session["uid"]).child("Betyg").get()
         row_grades = []
         row_courses = []
@@ -318,8 +320,8 @@ def update_graphs(url, n_clicks):
 
         for obj in data_db.each():
 
-            print(obj.key()) #Biologi - breddning
-            print(obj.val()) #{'Betyg': 'VG', 'Kurs': 'Biologi - breddning', 'Storlek': '50'}
+            # print(obj.key()) #Biologi - breddning
+            # print(obj.val()) #{'Betyg': 'VG', 'Kurs': 'Biologi - breddning', 'Storlek': '50'}
             row_grades.append(obj.val()["Betyg"])
             row_courses.append(obj.val()["Kurs"])
             row_codes.append(obj.val()["Kurskod"])
@@ -340,9 +342,9 @@ def update_graphs(url, n_clicks):
             #         print(i)
  
         my_data = pd.DataFrame(data=my_data)
-        print("---------")
-        print("MY DATA: ", my_data)
-        print("---------")
+        # print("---------")
+        # print("MY DATA: ", my_data)
+        # print("---------")
 
 
         return [ 
@@ -433,6 +435,7 @@ def update_graphs(url, n_clicks):
     Output('datatable-interactivity-container','children'),
     Output('your_grade', "children"),
     Output('graph-classes', "figure"),
+    Output('graph-classes-grade-occurence', "figure"),
     Output('nbr_grades', "children"),
     Input('adding-rows-table', 'derived_virtual_data'),
     Input('adding-rows-table', 'active_cell'),
@@ -805,22 +808,32 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         "Antal":[]
     }
 
+    #Ex output: {'Betyg': ['G', 'MVG', 'VG', 'IG'], 'Antal': [6, 12, 7, 1]}
     def calc_nbr_grade(d,g):
         df = set_grades_df(d)
         nbr_of_grade = 0
-        number_of_grades["Betyg"].append(g)
         for ind in df.index:
             if g == df['Betyg'][ind]:
                 nbr_of_grade += 1
-        number_of_grades["Antal"].append(nbr_of_grade)
+                number_of_grades["Betyg"].append(g)
+        number_of_grades["Betyg"] = list(set(number_of_grades["Betyg"])) #remove duplicates
+        if nbr_of_grade != 0: #dont add grades we dont have
+            number_of_grades["Antal"].append(nbr_of_grade)
         return number_of_grades #return number of MVG, VG etc
     #Description: Antal "VG" (exempelvis) i dina betyg
     #INput: grade dic, och ett betyg, ex "VG", eller "G"
+
+    #Iterate thorugh MVG, VG, G, IG , A, B ,C,D,F
     for g in grade_and_their_score_dict["Betyg"]: #MVG, VG, G, IG, A, B etc
         number_of_grades = calc_nbr_grade(d,g)
 
        
-    print("NUMBER OF GRADES", number_of_grades)
+    # print("NUMBER OF GRADES", number_of_grades)
+    #NUMBER OF GRADES {'Betyg': ['G', 'MVG', 'VG', 'IG'], 'Antal': [6, 12, 7, 1]}
+
+    #prepare the plotting of classes and coresponding number of grades in each class:
+    #for example class A has 1 MVG and 1 VG, while class B has 3 IG
+    #for this we need to find the corresponding classes which contains all these grades
 
     def pie_chart_classes(map_course_to_classes):
 
@@ -840,9 +853,182 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
                 classes_df["occurance"][index] = updated_nbr
         
         fig = px.pie(values= classes_df["occurance"], names=classes_df["classes"], hole =.3)
-        return fig
+        return {"fig":fig, "classes_df":classes_df["classes"]}
     
-    pie_chart = pie_chart_classes(input_pie_chart_function)
+    pie_chart = pie_chart_classes(input_pie_chart_function)["fig"]
+
+
+            #------------------------------------------------------------------------------------------------------------------------
+        #A function that returns each class with corresponding scores. Summarizes all class scores. 
+        #Input: A collected_all_list, eg a list with courses and their correspodning score and class
+        #Input: a dict, class|score|course från collect_all_list funktionen
+        #        miljö| 0,6 | Biologi A
+        #Output: Klass | Nbr of courses | Averg. score | Included courses ()
+        #Summerar alla kurser som tillhör en speciell klass. 
+    def summarize_class_scores(dic):
+        pd.set_option('display.max_colwidth', None)
+        courses_with_scores = pd.DataFrame({
+        'Klass: ': [],
+        'Score: ': [],
+        'Nbr of courses: ': [],
+        #Eftersom poängen inom varje klasss är eorende av antalet kurser (och inte enbart betygen) så behöver vi räkna ut ett snitt för varje klass.
+        'Averg. score: ': [],
+        'Included courses ': [],
+        })
+        
+        #Will be the same length as the number of classes
+        klass = []
+        #Will be the same length as the number of classes
+        scores = []
+        averg_score =[]
+        nbr_of_courses =[]
+        #Inlcuded_courses is a list that will contain lists (courses), => A list of lists
+        included_courses = []
+
+        for ind in dic.index:
+            #For each unique class. Keeps track of which array to fill in duplicates
+            if dic['Klass'][ind] not in klass:
+                klass.append(dic['Klass'][ind])
+                scores.append(dic['Score'][ind])
+                nbr_of_courses.append(1)
+                averg_score.append(dic['Score'][ind])
+                courses = [dic['Kurs'][ind]]
+                included_courses.append(courses)
+
+            else:
+                #If the class alrdy existe within the list, add the scores to the end of the score list
+                #Get the index where the first class is laying
+                class_index = klass.index(dic['Klass'][ind])
+            
+                #Get index where course should be inserted
+                #The new score equals the old score + the new one. The index is the same as the index for the class
+                new_score = scores[class_index] + dic['Score'][ind]
+                #Update the class score
+                scores[class_index] = new_score
+                averg_score[class_index] = new_score
+                nbr_of_courses[class_index] =  nbr_of_courses[class_index] +1 
+                averg_score[class_index] = new_score/nbr_of_courses[class_index]
+                #use append, since included_courses is a list of lists
+                if dic['Kurs'][ind] not in included_courses:
+                    included_courses[class_index].append(dic['Kurs'][ind])
+
+        #print("COURSE DATA-----------", course_data)
+        courses_with_scores['Klass'] = klass
+        courses_with_scores['Score'] = scores
+        courses_with_scores['Nbr of courses'] = nbr_of_courses
+        courses_with_scores['Averg. score'] =  averg_score
+        courses_with_scores['Included courses'] =  included_courses
+        courses_with_scores.dropna(how='all', axis=1, inplace=True) 
+
+        return courses_with_scores
+        #print(courses_with_scores)
+
+    #Med denna funktionen får vi alla betyg som finns i respektive klass.
+    #Används i funktionen: nbr_grade_in_givven_class 
+    def calc_nbr_grades_in_each_class(d):
+        courses = d_to_df(d)
+        df1 = summarize_class_scores(map_course_to_classes(courses))
+        df2 = set_grades_df(d)
+        grade_list = []
+        #Iterera igenom alla klasser
+        for ind in df1.index:
+            #För varje klass skapar vi en lista där vi kan ha betygen
+            nbr_grades = []
+            for x in df1['Included courses'][ind]:
+                #Index för kursen. Måste göra om till e lista för att kunna använda .index
+                index_course = list(df2['Kurs']).index(x)
+                #Hämta betyget
+                grade_course = df2['Betyg'][index_course]
+                nbr_grades.append(grade_course)
+
+            #Vi vill ha en lista av listor..
+            grade_list.append(nbr_grades)
+            
+        df1['Antal betyg'] =grade_list
+        return df1
+
+    #With this function we get number of grades in a given class (a_class)
+    #Related function: calc_nbr_grades_in_each_class
+    def nbr_grade_in_givven_class(d,a_grade, a_class):
+        
+        df1 = calc_nbr_grades_in_each_class(d)
+
+        #få index för den klassen vi är intresserad av
+        index = list(df1['Klass']).index(a_class)
+        counter = 0
+
+        #hämta antalet betyg i den klassen
+        grade_list = df1['Antal betyg'][index]
+        for x in grade_list:
+            if x == a_grade:
+                counter +=1
+
+        return counter
+
+
+
+    colors_grade_occurence_plot = {
+    'background': '#111111',
+    'text': '#7FDBFF'
+        }
+    #"Fruit": ["class A", "Class B", "Class C", "Class A", "Class B", "Class C"], 
+    #get unique classes and make it larger accoring to following rule: unique classes * nbr unique grades
+    #where nbr unique grades is equal to len(number_of_grades["Betyg"])
+
+    #taken from map_course_to_classes function
+    #find uniqe classes, used also in the pie chart (classes and number of courses in each class)
+    # allow us to plot it
+    unique_class_occurence_plot = list(set(classes))*len(number_of_grades["Betyg"]) #4 * 11 = 44
+    # print("unique_class_occurence_plot", unique_class_occurence_plot)
+    # print("list(set(classes))", list(set(classes))) #['beteende', 'fysisk hälsa', 'träning', 'medicin', 'språk', 'mental hälsa', 'juridik', 'ekonomi', 'naturvetenskap', 'samhällsvetenskap', 'humanioria']
+    grades_class_amount_occurence_plot = []
+
+    
+
+
+#SORTERA number_of_grades!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+
+
+ #NUMBER OF GRADES {'Betyg': ['G', 'MVG', 'VG', 'IG'], 'Antal': [6, 12, 7, 1]}
+    #iterate thorugh your unique grades
+    for a_class in list(set(classes)):
+         for a_grade in number_of_grades["Betyg"]:
+            nbr_grade_in_class = nbr_grade_in_givven_class(d,a_grade, a_class)
+            grades_class_amount_occurence_plot.append(nbr_grade_in_class)
+
+    #number_of_grades = {'Betyg': ['G', 'MVG', 'VG', 'IG'], 'Antal': [6, 12, 7, 1]}
+
+    # df = pd.DataFrame({
+    # "Fruit": ["class A", "Class B", "Class C", "Class A", "Class B", "Class C"], 
+    # amount = antal unika betyg * antalet klasser (x-axeln)
+    # "Amount": [4, 1, 2, 2, 4, 5],
+    # "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
+    #     })
+
+    #Måste ha rätt mappning
+    grades_occurence_plot = []
+    for i in number_of_grades["Betyg"]:
+        for j in list(set(classes)):
+            grades_occurence_plot.append(i)
+
+    df_grade_class_occurence_plot = pd.DataFrame({
+            "classes": unique_class_occurence_plot,#string
+            "amount": grades_class_amount_occurence_plot, #int
+            "grades": grades_occurence_plot #string
+        })
+
+    fig_grade_occurence = px.bar(df_grade_class_occurence_plot, x="classes", y="amount", color="grades", barmode="group")
+
+    fig_grade_occurence.update_layout(
+        plot_bgcolor=colors_grade_occurence_plot['background'],
+        paper_bgcolor=colors_grade_occurence_plot['background'],
+        font_color=colors_grade_occurence_plot['text']
+    )
+
 
      #------------ END FUNCTIONS TO CALCULATE YOUR GRADE BASED ON DASH TABLE INPUT END---------------------------
 
@@ -900,7 +1086,7 @@ def update_graphs(rows,active_cell,coord,derived_virtual_selected_rows,derived_v
         # If `column.deletable=False`, then you don't
         # need to do this check.
         for column in ["column-0"] if column in dff
-    ], your_grade, pie_chart, [number_of_grades["Betyg"][0], ":" ,number_of_grades["Antal"][0]]
+    ], your_grade, pie_chart, fig_grade_occurence,[number_of_grades["Betyg"][0], ":" ,number_of_grades["Antal"][0]]
     
 
 
