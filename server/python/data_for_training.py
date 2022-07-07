@@ -703,4 +703,9 @@ def traning_data_courses():
   training_data.append({"class":"samhällsvetenskap", "word":"engelska"})#data
   training_data.append({"class":"samhällsvetenskap", "word":"svenska"}) #data
 
+  training_data.append({"class":"övrigt", "word":"övrigt"}) #data
+
   return training_data
+
+
+print(len(traning_data_courses()))

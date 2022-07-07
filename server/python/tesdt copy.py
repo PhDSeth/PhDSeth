@@ -240,6 +240,7 @@ def register():
     session['from_db'] = False
     session["grade-dash-table"] = False
     session["page-refreshed"] = False
+    session["returned-table"] = False
     #Check if the user has been registered earlier
     # uid = jsonData["uid"]
     # if db.child("users/").child("ggg").get().val() != None: #if the user exists
@@ -338,6 +339,8 @@ def update_graphs(url, n_clicks):
 
     session["grade-dash-updated"] = False
 
+
+
     
 
     #BÖR HA EN TRY CATCH ELLER NÅGOT; OM MAN SKULLE SKRIVA IN KONSTIGA SAKER SÅ MÅSTE TABELLEN ÄNDÅ KOMMA UPP
@@ -407,7 +410,7 @@ def update_graphs(url, n_clicks):
             ],
             type = "cube")
            
-        ], session["dash-table-reloaded"] #gets in the store (session)
+        ],session["dash-table-reloaded"]
 
     elif n_clicks >= 1:
         return[
@@ -434,9 +437,11 @@ def update_graphs(url, n_clicks):
             sort_action='native',
             sort_mode='multi',
             sort_by=[{'direction': 'asc'}]
-        ),], session["dash-table-reloaded"]
+        ),],session["dash-table-reloaded"]
     
     else:
+
+        session["returned-table"] = True
         return[
 
         dt.DataTable(
@@ -461,7 +466,7 @@ def update_graphs(url, n_clicks):
             sort_action='native',
             sort_mode='multi',
             sort_by=[{'direction': 'asc'}]
-        ),], session["dash-table-reloaded"]
+        ),],session["returned-table"] 
 
         
 
@@ -479,8 +484,7 @@ def update_graphs(url, n_clicks):
     Input('adding-rows-table', 'derived_virtual_data'),
     State('adding-rows-table', 'active_cell'), #Change from input to state, since we dont want everything inside
     #this callback to run everytime we press something, only when we change data
-    # State('adding-rows-table', 'active_cell'),s 
-    Input("store-data", "data"),
+    State('store-data', 'data'),
 
     #STATE DOESNT TRIGGER CALLBACK, ONLY INPUT DOES
     State('adding-rows-table', "derived_virtual_selected_rows"),
@@ -503,7 +507,8 @@ def update_graphs(rows,active_cell,store_data,derived_virtual_selected_rows,deri
     if derived_virtual_selected_rows is None:
         derived_virtual_selected_rows = []
     
-
+    # while session.get("returned-table") == False:
+    #     print("VÄNTAR")
 
     #Every time we reload the page, the dff = df since it's empty
     dff = df if rows is None else pd.DataFrame(rows)
@@ -752,7 +757,7 @@ def update_graphs(rows,active_cell,store_data,derived_virtual_selected_rows,deri
         #Courses that contains any of the following words, will not be tokenized or stemmed
         excluding_words = ['breddning', 'specialisering', '5', '4','3','2',]
 
-        i = 0
+  
         course_list = []
         grade_list = []
         class_list = []
@@ -761,10 +766,9 @@ def update_graphs(rows,active_cell,store_data,derived_virtual_selected_rows,deri
         
         for ind in list_course.index:
             nb_classes_iterated = 0
-            token = False
             true_false = []
             token_words = []
-
+            token = False
         
             #Each course in our grades is separately stored in these three variables
             course = list_course['Kurs'][ind]
@@ -793,10 +797,7 @@ def update_graphs(rows,active_cell,store_data,derived_virtual_selected_rows,deri
             for class_name in class_words_training_data.keys():
 
                 nb_classes_iterated +=1
-            
-
-
-
+ 
                 #Iterate thorugh each word (value) in key
                 #for class_word in class_words_training_data[class_name]:
 
@@ -822,7 +823,8 @@ def update_graphs(rows,active_cell,store_data,derived_virtual_selected_rows,deri
                         # check to see if the stem of the word (the course in our grades that has been stemmed) is in any of our classes (from trainng data stemmed)
                         #Iterate through all classes and see if we have a match, that is, if the stemmed word is present in any class
                         if stemmer.stem(token_word.lower()) in class_words_training_data[class_name]:
-
+                            
+                            #token = True if the course has ben added to at least one class
                             token = True #this should always be true, since we want the courses to be mapped to a class
                             score = calc_grade(data)
                             #Add class name, course name and score to each list, so these can be put into adatafram later
@@ -840,6 +842,7 @@ def update_graphs(rows,active_cell,store_data,derived_virtual_selected_rows,deri
                             grade_list.append(grades)
                             course_list.append(course)
                             score_list.append(score)
+                    
                     
 
         dict_all_courses_points['Klass']=class_list

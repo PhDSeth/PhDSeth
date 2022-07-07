@@ -106,7 +106,7 @@ export default {
                   //we need to set axios create with "withCredential: true" in order
                   //for session to work.Has to do with cookie compability
               const ip = axios.create({withCredentials: true})
-
+            
               ip.post('http://localhost:8050/register_activity',data_to_send ).then(response =>{return this.ip = response.data})
               console.log(ip)
                
