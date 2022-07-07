@@ -43,13 +43,6 @@ import os
 from datetime import timedelta
 
 from scipy.fftpack import diff
-
-
-from educationData import education_data_engineering
-from educationData import education_data_health
-from educationData import education_data_social
-
-
 # Flask constructor takes the name of
 # current module (__name__) as argument.
 flask_app = Flask(__name__)
@@ -77,15 +70,6 @@ data_updated_table = "hej"
 
 
 # main driver function
-
-
-education_class_dataFrame1 = education_data_engineering.create_engi()
-education_class_dataFrame2 = education_data_health.create_health()
-education_class_dataFrame3 = education_data_social.create_social()
-frames = [education_class_dataFrame1, education_class_dataFrame2,education_class_dataFrame3]
-education_class_dataFrame= pd.concat(frames, ignore_index=True)
-
-education_class_dataFrame = pd.DataFrame(data=education_class_dataFrame)
 
 
 config = {
@@ -177,6 +161,215 @@ def blank_fig():
     
     return fig
 
+
+
+
+
+
+
+
+
+
+
+def grade(df):
+    #Om betygen INTE är en String, betyder det att vi har använt oss av grade-funkionen en gång innan. Då ska vi 
+    #bara returnera df utan att gå in och ändra
+    if type(df['Betyg'][0]) != str:
+        return df
+        
+    
+    #Loopa igenom dina betyg, dataframe
+    for ind in df.index:
+
+        string_grade = df['Betyg'][ind] # T.ex "VG" eller "B"
+
+        int_grade_index = list(grade_and_their_score_dict_df['Betyg']).index(string_grade.upper()) #Få fram index för där "VG" Ligger, så vi kan hämta motsvarande score
+        #int_grade_index = 2 #Få fram index för där "VG" Ligger, så vi kan hämta motsvarande score
+        
+        int_grade = grade_and_their_score_dict_df['Score'][int_grade_index]
+        df['Betyg'][ind] = int_grade
+    
+    
+    return df
+
+def calc_tot_points(d):
+    df = pd.DataFrame(data=d) #en lokal kopia av betygen
+    tot_points = 0
+    for ind in df['Storlek']:
+        tot_points += ind
+    return tot_points
+
+def norm_grade(d):
+    df = pd.DataFrame(data=d)
+    #Använder hjälpfunktionen för att beräkna
+    df1 = grade(df)
+    tot_points = calc_tot_points(d)
+    for ind in df1.index:
+        grade1 = df1['Betyg'][ind] #T.ex "MVG" eller "A"
+        points =df1['Storlek'][ind] #T.ex 100 eller 50
+        normed_grade = grade1*points/tot_points
+        df1['Betyg'][ind] = normed_grade
+    return df1
+
+def calc_grade(d):
+    df = norm_grade(d) #Calling the norm grade function to normalize your grade
+    grade1 = 0
+    for ind in df.index:
+        grade1 = grade1 + df['Betyg'][ind]
+    #print('Ditt betyg (utan meritpoäng) är: ', grade)
+    #Meritpoäng is given for 
+    return grade1
+
+
+
+
+
+#From dict to dataframe
+#Convert grades from dash table to dataframe
+def d_to_df(d):
+    courses = pd.DataFrame(data =d)
+    return courses
+#------------------------------------------------------------------------------------------------------------------------
+#Output: A dict with classes and corresponding words that belongs to each class. Based on our traning data
+#Ex: {'naturvetenskap' : ['fysik, matematik, biologi]}
+def tokenize_stem_trainingData():
+
+    # capture unique stemmed words in the training corpus
+    #corpus_words = {}
+    class_words_training_data = {}
+    index = 0
+    # turn a list into a set (of unique items) and then a list again (this removes duplicates)
+    #Classes is the names of every unique class we have identified in our grade
+    classes = list(set([a['class'] for a in training_data]))
+    for c in classes:
+        # prepare a list of words within each class
+        class_words_training_data[c] = []
+        # loop through each sentence in our training data
+        #Training data conains all data, where data is one line class: blabla, word: blabla
+
+    for data in training_data:
+        
+        if 'breddning' in data['word'] or 'specialisering' in data['word'] or '5' in data['word'] or '4' in data['word'] or '3' in data['word'] or '2' in data['word']:
+            #APPEND insert a word as a ONE, for exmpale "biologi" is added as "biologi", while EXTEND will add "b","i","o","l","o","g","i"
+            # print('träningsdata', data)
+            # time.sleep(2)
+            class_words_training_data[data['class']].append(data['word'])
+        
+        else:
+            # tokenize each sentence in our traning data into words
+            #For example: "matematik specialisering" => "matematik", "specialisering"
+            for word in nltk.word_tokenize(data['word']):  
+                # stem and lowercase each word
+                stemmed_word = stemmer.stem(word.lower())
+                # print('word in tokenized wordk',  word)
+                # time.sleep(2)
+                # print('stemmed',  stemmed_word)
+                # time.sleep(2)
+                # have we not seen this word already?
+                #if stemmed_word not in corpus_words:
+                #corpus_words[stemmed_word] = 1
+                #corpus_words[stemmed_word] += 1
+                # add the word to our words in class list
+                class_words_training_data[data['class']].extend([stemmed_word])
+    return class_words_training_data
+
+
+
+    #------------------------------------------------------------------------------------------------------------------------
+    #A function that returns each class with corresponding scores. Summarizes all class scores. 
+    #Input: A collected_all_list, eg a list with courses and their correspodning score and class
+    #Input: a dict, class|score|course från collect_all_list funktionen
+    #        miljö| 0,6 | Biologi A
+    #Output: Klass | Nbr of courses | Averg. score | Included courses ()
+    #Summerar alla kurser som tillhör en speciell klass. 
+def summarize_class_scores(dic):
+    pd.set_option('display.max_colwidth', None)
+    courses_with_scores = pd.DataFrame({
+    'Klass: ': [],
+    'Score: ': [],
+    'Nbr of courses: ': [],
+    #Eftersom poängen inom varje klasss är eorende av antalet kurser (och inte enbart betygen) så behöver vi räkna ut ett snitt för varje klass.
+    'Averg. score: ': [],
+    'Included courses ': [],
+    })
+    
+    #Will be the same length as the number of classes
+    klass = []
+    #Will be the same length as the number of classes
+    scores = []
+    averg_score =[]
+    nbr_of_courses =[]
+    #Inlcuded_courses is a list that will contain lists (courses), => A list of lists
+    included_courses = []
+
+    for ind in dic.index:
+        #For each unique class. Keeps track of which array to fill in duplicates
+        if dic['Klass'][ind] not in klass:
+            klass.append(dic['Klass'][ind])
+            scores.append(dic['Score'][ind])
+            nbr_of_courses.append(1)
+            averg_score.append(dic['Score'][ind])
+            courses = [dic['Kurs'][ind]]
+            included_courses.append(courses)
+
+        else:
+            #If the class alrdy existe within the list, add the scores to the end of the score list
+            #Get the index where the first class is laying
+            class_index = klass.index(dic['Klass'][ind])
+        
+            #Get index where course should be inserted
+            #The new score equals the old score + the new one. The index is the same as the index for the class
+            new_score = scores[class_index] + dic['Score'][ind]
+            #Update the class score
+            scores[class_index] = new_score
+            averg_score[class_index] = new_score
+            nbr_of_courses[class_index] =  nbr_of_courses[class_index] +1 
+            averg_score[class_index] = new_score/nbr_of_courses[class_index]
+            #use append, since included_courses is a list of lists
+            if dic['Kurs'][ind] not in included_courses:
+                included_courses[class_index].append(dic['Kurs'][ind])
+
+    #print("COURSE DATA-----------", course_data)
+    courses_with_scores['Klass'] = klass
+    courses_with_scores['Score'] = scores
+    courses_with_scores['Nbr of courses'] = nbr_of_courses
+    courses_with_scores['Averg. score'] =  averg_score
+    courses_with_scores['Included courses'] =  included_courses
+    courses_with_scores.dropna(how='all', axis=1, inplace=True) 
+
+    return courses_with_scores
+    #print(courses_with_scores)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#--------------END ORDINARY FUNCTIONS---------------------
+
+
+
+
+
+
 initial_active_cell = {"row":0, "column":0}
 #Här lacerar vi alla dic/element på webbsidan
 
@@ -226,7 +419,7 @@ app.layout = html.Div([
             ]),
         ], className='six columns'),
     html.Button('Matcha mot utbildning', id='match-edu-button', n_clicks=0),
-    dcc.Loading(children=[html.Div(id="match-edu-div", children=[])], type="dot"),
+    html.Div(id="match-edu-div", children=[]),
     # html.Div(id='datatable-interactivity-container2'),
     dcc.Store(id='store-data', storage_type='local')
 ])
@@ -497,457 +690,13 @@ def update_graphs(url, n_clicks):
 
 
 
-
-
-
-
-
-
-# @app.callback(Output("match-edu-div", "children"),
-# Input("match-edu-button", "n_clicks")
-# )
-# def find_education(n_clicks):
-#         #------------------------------------------------------------------------------------------------------------------------
-#     #A function that suggests what you should study, based on your grades
-#     #The function match your grades/interest with different education attributes, and calculates educzation matches
-#     #Input: Sorted DataFrame with data, education_data
-#     #Output, 
-#     #--------------------ÄNDRA HÄR SÅ VI INTE TITTAR PÅ TOPP KLASSERNA (MÅSTE HÅRDKODA VILKA NIVÅER VI VILL HA)-------------------------------------
-#     def suggest_education(dframe,normed_grades):
-
-#         match = 0
-
-#         d = {
-#             "Kurs": course_name,
-#             "Betyg":grades,
-#             "Storlek": list(map(int, credits)), #change from strings to ints
-#             "Kurskod":code
-#         }
-#         #print("d_frame", dframe)
-
-#         #Sort by averag. class score, and number of courses. We want to suggest an education based on 
-#         #the person's strongest area
-#         sorted_dframe = dframe.sort_values(by=['Averg. score', 'Nbr of courses',], ascending=(False, False))
-#         print("Sorted-dfram",sorted_dframe)
-#         #print(sorted_dframe.head(5))
-
-#         normed_grades = normed_grades
-#         print(normed_grades)
-
-
-#         excluding_words = ['breddning', 'specialisering', '5', '4','3','2',]
-
-
-#         nbr_classes = len(sorted_dframe) # ex, 10 rows (10 different classes)
-#         #We want to split up the number of classes into 4 different groups, so we can use those groups in class1_classes, class2_classes etc
-
-#         class1_classes = sorted_dframe.head(int(round(0.2*nbr_classes)))
-#         #print("class1_classes",class1_classes)
-#         best_class1 = class1_classes['Klass']
-#         #convert df to array, so we can compare in for loop
-#         #numpy_clas1 contains the top 3 classes, to be compared with the data in the education_class_dataframe
-#         numpy_class1 = best_class1.to_numpy()
-#         #print('NUMPY_CLASS1', numpy_class1)
-
-#         class2_classes = sorted_dframe.iloc[0:int(round(0.3*nbr_classes))] #3 is included, 5 is excluded
-#         best_class2 = class2_classes['Klass']
-#         numpy_class2 = best_class2.to_numpy()
-
-#         print(numpy_class1)
-
-#         #print('NUMPY_CLASS2', numpy_class2)
-
-#         #----Class 1 and class 2 icludes classes, whil class3 and class4 contains courses:-------------------
-
-#         #find courses from your 2 best classes, only unique courses, since the same course can be present in multiple classes
-#         numpy_courses3 = []
-#         #Class3_courses is a part of a dataframe
-#         class3_courses = sorted_dframe.head(int(round(0.3*nbr_classes)))
-
-#         #best_courses3 is a column from a dataframe, a list of lists
-#         best_courses3 = class3_courses['Included courses']
-
-#         #to_numpy converrts dataframe to numpy array, list of lists
-#         numpy_courses3_not_unique = best_courses3.to_numpy()
-
-#         #from list of list to one list
-#         numpy_courses3_not_unique= list(chain.from_iterable(numpy_courses3_not_unique))
-
-#         numpy_courses4 = []
-#         class4_courses = sorted_dframe.iloc[int(round(0.31*nbr_classes)):nbr_classes] #all courses included in the classes from top 21% to 50%
-#         best_courses4 = class4_courses['Included courses']
-#         #to_numpy converrts dataframe to numpy array, list of lists
-#         numpy_courses4_not_unique = best_courses4.to_numpy()
-#         numpy_courses4_not_unique= list(chain.from_iterable(numpy_courses4_not_unique))
-
-
-#         for x in numpy_courses3_not_unique:
-#             if x not in numpy_courses3:
-#                 numpy_courses3.append(x)
-
-#         for x in numpy_courses4_not_unique:
-#             if x not in numpy_courses4:
-#                 numpy_courses4.append(x)
-
-#         #Iterate through each row in education_class_dataFrame (lower_case_Education_df(), we want lower case) to
-#         #calculate matches for every education class
-#         for row in education_class_dataFrame.index:
-
-#             #OBS TA BORT "OCH", och ev andra ord
-
-#             #Iterate through class1 (your top 3 classes)
-#             #We dont need to tokenize class names, since its standarized
-#             #x = språk, samhällsvetenskap, kultur
-#             for x in numpy_class1:
-
-#                 #Tokenize each word: "Tillämpad programmering" => "tillämpad", "programmering"
-#                 #If we have a match, each match is "worth" 20%
-#                 if (x.lower() in education_class_dataFrame['class1'][row]):
-
-#                     #Max 20 * 3 = 60% match
-#                     match += 12
-
-
-#             #Iterate through class2 (your top 4-5 classes)
-#             #Instead of iterating thorugh the courses in top classes, iterate trough all of your grades (since you can have good grades in courses in bottom list)
-#             for x in numpy_class2:
-#                 #If we have a match, each match is "worth" 20%
-#                 #NO need to use stem for classes
-#                 if (x.lower() in education_class_dataFrame['class2'][row]):
-#                     #Max 2 * 5 = 10% match
-#                     match += 9
-
-#             #Iterate through class3 (courses in your 2 best classes)---------------
-#             words3 = []
-
-#             for word3 in list(education_class_dataFrame['class3'][row]):
-
-#                 #We use stem for courses
-#                 for word in nltk.word_tokenize(word3):
-#                     words3.append(stemmer.stem(word))
-
-#             occurance3 = 0
-#             #iterate thorugh the courses, included in our top classes
-#             for x in numpy_courses3:
-
-#                 index = list(normed_grades['Kurs']).index(x) #get the index where the course is 
-#                 normed_score = normed_grades['Betyg'][index]
-
-#                 for word in nltk.word_tokenize(x):
-#                     #count the number of times 
-#                     occurance3 += words3.count(word)
-                
-#             initial_match3 = 12
-#             match += initial_match3*occurance3*normed_score
-#             #----------------------------------------------------------------------
-#             #Iterate through class3 (courses in your 2 best classes)---------------
-#             words4 = []
-#             for word4 in education_class_dataFrame['class3'][row]:
-
-#                 for word in nltk.word_tokenize(word4):
-#                     words4.append(stemmer.stem(word))
-
-#             occurance4 = 0
-#             for x in numpy_courses4:
-
-#                 index = list(normed_grades['Kurs']).index(x) #get the index where the course is 
-#                 normed_score = normed_grades['Betyg'][index]
-
-#                 for word in nltk.word_tokenize(x):
-#                     #count the number of times 
-#                     occurance4 += words4.count(word)
-                
-#             initial_match4 = 2
-#             match += initial_match4*occurance4*normed_score
-
-#             #match cannot be greated than 100%      
-#             if match > 100:
-#                 match = 100
-
-#         print('Matchen för ', education_class_dataFrame['Education'][row], 'vid',education_class_dataFrame['Schools'][row] ,' är ', round(match,0),'%')
-#         # return 'Matchen för ', education_class_dataFrame['Education'][row], 'vid',education_class_dataFrame['Schools'][row] ,' är ', round(match,0),'%'
-
-
-
-#     def norm_grade(d):
-#         df = pd.DataFrame(data=d)
-#         #Använder hjälpfunktionen för att beräkna
-#         df1 = grade(df)
-#         tot_points = calc_tot_points(d)
-#         for ind in df1.index:
-#             grade1 = df1['Betyg'][ind] #T.ex "MVG" eller "A"
-#             points =df1['Storlek'][ind] #T.ex 100 eller 50
-#             normed_grade = grade1*points/tot_points
-#             df1['Betyg'][ind] = normed_grade
-#         return df1
-
-#     def calc_grade(d):
-#         df = norm_grade(d) #Calling the norm grade function to normalize your grade
-#         grade1 = 0
-#         for ind in df.index:
-#             grade1 = grade1 + df['Betyg'][ind]
-#         #print('Ditt betyg (utan meritpoäng) är: ', grade)
-#         #Meritpoäng is given for 
-#         return grade1
-
-#     #Your grades is updated everytime the dash tables is updated
-#     your_grade = calc_grade(d)
-
-
-    
-#     def summarize_class_scores(dic):
-#         pd.set_option('display.max_colwidth', None)
-#         courses_with_scores = pd.DataFrame({
-#         'Klass: ': [],
-#         'Score: ': [],
-#         'Nbr of courses: ': [],
-#         #Eftersom poängen inom varje klasss är eorende av antalet kurser (och inte enbart betygen) så behöver vi räkna ut ett snitt för varje klass.
-#         'Averg. score: ': [],
-#         'Included courses ': [],
-#         })
-        
-#         #Will be the same length as the number of classes
-#         klass = []
-#         #Will be the same length as the number of classes
-#         scores = []
-#         averg_score =[]
-#         nbr_of_courses =[]
-#         #Inlcuded_courses is a list that will contain lists (courses), => A list of lists
-#         included_courses = []
-
-#         for ind in dic.index:
-#             #For each unique class. Keeps track of which array to fill in duplicates
-#             if dic['Klass'][ind] not in klass:
-#                 klass.append(dic['Klass'][ind])
-#                 scores.append(dic['Score'][ind])
-#                 nbr_of_courses.append(1)
-#                 averg_score.append(dic['Score'][ind])
-#                 courses = [dic['Kurs'][ind]]
-#                 included_courses.append(courses)
-
-#             else:
-#                 #If the class alrdy existe within the list, add the scores to the end of the score list
-#                 #Get the index where the first class is laying
-#                 class_index = klass.index(dic['Klass'][ind])
-            
-#                 #Get index where course should be inserted
-#                 #The new score equals the old score + the new one. The index is the same as the index for the class
-#                 new_score = scores[class_index] + dic['Score'][ind]
-#                 #Update the class score
-#                 scores[class_index] = new_score
-#                 averg_score[class_index] = new_score
-#                 nbr_of_courses[class_index] =  nbr_of_courses[class_index] +1 
-#                 averg_score[class_index] = new_score/nbr_of_courses[class_index]
-#                 #use append, since included_courses is a list of lists
-#                 if dic['Kurs'][ind] not in included_courses:
-#                     included_courses[class_index].append(dic['Kurs'][ind])
-
-#         #print("COURSE DATA-----------", course_data)
-#         courses_with_scores['Klass'] = klass
-#         courses_with_scores['Score'] = scores
-#         courses_with_scores['Nbr of courses'] = nbr_of_courses
-#         courses_with_scores['Averg. score'] =  averg_score
-#         courses_with_scores['Included courses'] =  included_courses
-#         courses_with_scores.dropna(how='all', axis=1, inplace=True) 
-
-#         return courses_with_scores
-#         #print(courses_with_scores)
-
-
-#      #------------------------------------------------------------------------------------------------------------------------
-#     #Output: A dict with classes and corresponding words that belongs to each class. Based on our traning data
-#     #Ex: {'naturvetenskap' : ['fysik, matematik, biologi]}
-#     def tokenize_stem_trainingData():
-    
-#         # capture unique stemmed words in the training corpus
-#         #corpus_words = {}
-#         class_words_training_data = {}
-#         index = 0
-#         # turn a list into a set (of unique items) and then a list again (this removes duplicates)
-#         #Classes is the names of every unique class we have identified in our grade
-#         classes = list(set([a['class'] for a in training_data]))
-#         for c in classes:
-#             # prepare a list of words within each class
-#             class_words_training_data[c] = []
-#             # loop through each sentence in our training data
-#             #Training data conains all data, where data is one line class: blabla, word: blabla
-
-#         for data in training_data:
-            
-#             if 'breddning' in data['word'] or 'specialisering' in data['word'] or '5' in data['word'] or '4' in data['word'] or '3' in data['word'] or '2' in data['word']:
-#                 #APPEND insert a word as a ONE, for exmpale "biologi" is added as "biologi", while EXTEND will add "b","i","o","l","o","g","i"
-#                 # print('träningsdata', data)
-#                 # time.sleep(2)
-#                 class_words_training_data[data['class']].append(data['word'])
-            
-#             else:
-#                 # tokenize each sentence in our traning data into words
-#                 #For example: "matematik specialisering" => "matematik", "specialisering"
-#                 for word in nltk.word_tokenize(data['word']):  
-#                     # stem and lowercase each word
-#                     stemmed_word = stemmer.stem(word.lower())
-#                     # print('word in tokenized wordk',  word)
-#                     # time.sleep(2)
-#                     # print('stemmed',  stemmed_word)
-#                     # time.sleep(2)
-#                     # have we not seen this word already?
-#                     #if stemmed_word not in corpus_words:
-#                     #corpus_words[stemmed_word] = 1
-#                     #corpus_words[stemmed_word] += 1
-#                     # add the word to our words in class list
-#                     class_words_training_data[data['class']].extend([stemmed_word])
-#         return class_words_training_data
-
-
-#     class_words_training_data = tokenize_stem_trainingData()
-
-
-#     def map_course_to_classes(list_course):
-#         #Create some glabal attributes, which will be used in the calculate_class_score function
-
-#         #Courses that contains any of the following words, will not be tokenized or stemmed
-#         excluding_words = ['breddning', 'specialisering', '5', '4','3','2',]
-
-#         i = 0
-#         course_list = []
-#         grade_list = []
-#         class_list = []
-#         score_list = []
-
-        
-#         for ind in list_course.index:
-#             nb_classes_iterated = 0
-#             token = False
-#             true_false = []
-#             token_words = []
-
-        
-#             #Each course in our grades is separately stored in these three variables
-#             course = list_course['Kurs'][ind]
-#             grades = list_course['Betyg'][ind]
-#             size = list_course['Storlek'][ind]
-#             data = {'Kurs': [course], 'Storlek': [size],'Betyg': [grades]}
-#             #add all courses to the datafram
-#             #For each course in our grade, we loop thorugh each class_name in our training data to see if there are any courses that match
-#             #for every course, we loop through each class to see if we have a match
-#             for word in nltk.word_tokenize(course):
-#                 word = word.replace('och', '')
-#                 word = word.replace('-', '')
-#                 word = word.replace('på', '')
-#                 token_words.append(word)
-#                 #If our course contains any of the words included in the excluding_words array,
-#                 #we want to append the course directly, without any further stemming etc.
-#                 if word in excluding_words:
-#                     true_false.append(True)
-#                 else:
-#                     true_false.append(False)
-
-#             #iterate through every key in our training data
-#             import time
-#             #we want to find what class our course belongs to
-#             # class_words_training_data contains all traing data (data_for_training)
-#             for class_name in class_words_training_data.keys():
-
-#                 nb_classes_iterated +=1
-            
-
-
-
-#                 #Iterate thorugh each word (value) in key
-#                 #for class_word in class_words_training_data[class_name]:
-
-#                 #All words in excludin_words are stored in the traing data as is, without being stemmed/tokenized, see function "stokenize_stem_trainingData"
-#                 if (course in class_words_training_data[class_name] and any(true_false)): #any gives true if the list contains any true
-                    
-#                     #Add class name, course name and score to each list, so these can be put into adatafram later
-#                     score = calc_grade(data)
-#                     #we want to se which class the course corresponds to
-#                     class_list.append(class_name)
-#                     grade_list.append(grades)
-#                     course_list.append(course)
-#                     score_list.append(score)
-#                     # time.sleep(2)
-
-#                 #if the word doesn't contain any of the words in exckluding_words array, tokenize and stem it!
-#                 if (any(true_false)==False):
-
-
-#                     for token_word in token_words:
-
-
-#                         # check to see if the stem of the word (the course in our grades that has been stemmed) is in any of our classes (from trainng data stemmed)
-#                         #Iterate through all classes and see if we have a match, that is, if the stemmed word is present in any class
-#                         if stemmer.stem(token_word.lower()) in class_words_training_data[class_name]:
-
-#                             token = True #this should always be true, since we want the courses to be mapped to a class
-#                             score = calc_grade(data)
-#                             #Add class name, course name and score to each list, so these can be put into adatafram later
-#                             class_list.append(class_name)
-#                             grade_list.append(grades)
-#                             course_list.append(course)
-#                             score_list.append(score)
-
-#                         # #If the word doesnt match any of the specified classes add the course to "övrigt"
-#                         #if we have iterated trhough every class, and not found any mathing classes
-#                         if nb_classes_iterated == len(class_words_training_data) and token == False: #the course has not been added..
-#                             score = calc_grade(data)
-#                             #Add class name, course name and score to each list, so these can be put into adatafram later
-#                             class_list.append("övrigt")
-#                             grade_list.append(grades)
-#                             course_list.append(course)
-#                             score_list.append(score)
-                    
-
-#         dict_all_courses_points['Klass']=class_list
-#         dict_all_courses_points['Score']=score_list
-#         dict_all_courses_points['Kurs']=course_list
-#         #Drop all rows/columns that contain NaN-values
-#         dict_all_courses_points.dropna(how='all', axis=1, inplace=True) 
-#         #returns a dict with all courses/grades/classes
-#         return dict_all_courses_points.drop_duplicates() #drop all duplicates, so we dont need to worry about the structure/format of the training data 
-
-
-
-
-#     if n_clicks >= 1:
-#         suggest_education(summarize_class_scores(map_course_to_classes(d_to_df(d))), norm_grade(d))
-     
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@app.callback(Output("match-edu-div", "children"),
+Input("match-edu-button", "n_clicks")
+)
+def find_education(n_clicks):
+
+    if n_clicks >= 1:
+        print("HITTA UTBILDNMING!")
 
 
 #This callback fires when we change data
@@ -1100,59 +849,12 @@ def update_graphs(rows,active_cell,n_clicks,derived_virtual_selected_rows,derive
     #------------FUNCTIONS TO CALCULATE YOUR GRADE BASED ON DASH TABLE INPUT-----------------------------------
 
     #***********CALC GRADE****************************
-    def grade(df):
-     #Om betygen INTE är en String, betyder det att vi har använt oss av grade-funkionen en gång innan. Då ska vi 
-     #bara returnera df utan att gå in och ändra
-     if type(df['Betyg'][0]) != str:
-          return df
-          
-     
-     #Loopa igenom dina betyg, dataframe
-     for ind in df.index:
-
-          string_grade = df['Betyg'][ind] # T.ex "VG" eller "B"
-
-          int_grade_index = list(grade_and_their_score_dict_df['Betyg']).index(string_grade.upper()) #Få fram index för där "VG" Ligger, så vi kan hämta motsvarande score
-          #int_grade_index = 2 #Få fram index för där "VG" Ligger, så vi kan hämta motsvarande score
-          
-          int_grade = grade_and_their_score_dict_df['Score'][int_grade_index]
-          df['Betyg'][ind] = int_grade
-       
-     
-     return df
-
-
-    def calc_tot_points(d):
-     df = pd.DataFrame(data=d) #en lokal kopia av betygen
-     tot_points = 0
-     for ind in df['Storlek']:
-          tot_points += ind
-     return tot_points
-
-    def norm_grade(d):
-     df = pd.DataFrame(data=d)
-     #Använder hjälpfunktionen för att beräkna
-     df1 = grade(df)
-     tot_points = calc_tot_points(d)
-     for ind in df1.index:
-          grade1 = df1['Betyg'][ind] #T.ex "MVG" eller "A"
-          points =df1['Storlek'][ind] #T.ex 100 eller 50
-          normed_grade = grade1*points/tot_points
-          df1['Betyg'][ind] = normed_grade
-     return df1
-
-    def calc_grade(d):
-     df = norm_grade(d) #Calling the norm grade function to normalize your grade
-     grade1 = 0
-     for ind in df.index:
-          grade1 = grade1 + df['Betyg'][ind]
-     #print('Ditt betyg (utan meritpoäng) är: ', grade)
-     #Meritpoäng is given for 
-     return grade1
 
     #Your grades is updated everytime the dash tables is updated
     your_grade = calc_grade(d)
     #***********CALC GRADE****************************
+
+
 
     #***********STEM TRANING DATA TO GET THE CLASSES THAT EACH COURSE BELONGS TO*************
 
@@ -1168,57 +870,7 @@ def update_graphs(rows,active_cell,n_clicks,derived_virtual_selected_rows,derive
     dict_all_courses_points = course_score_class()
 
 
-
-    #From dict to dataframe
-    #Convert grades from dash table to dataframe
-    def d_to_df(d):
-        courses = pd.DataFrame(data =d)
-        return courses
-    #------------------------------------------------------------------------------------------------------------------------
-    #Output: A dict with classes and corresponding words that belongs to each class. Based on our traning data
-    #Ex: {'naturvetenskap' : ['fysik, matematik, biologi]}
-    def tokenize_stem_trainingData():
     
-        # capture unique stemmed words in the training corpus
-        #corpus_words = {}
-        class_words_training_data = {}
-        index = 0
-        # turn a list into a set (of unique items) and then a list again (this removes duplicates)
-        #Classes is the names of every unique class we have identified in our grade
-        classes = list(set([a['class'] for a in training_data]))
-        for c in classes:
-            # prepare a list of words within each class
-            class_words_training_data[c] = []
-            # loop through each sentence in our training data
-            #Training data conains all data, where data is one line class: blabla, word: blabla
-
-        for data in training_data:
-            
-            if 'breddning' in data['word'] or 'specialisering' in data['word'] or '5' in data['word'] or '4' in data['word'] or '3' in data['word'] or '2' in data['word']:
-                #APPEND insert a word as a ONE, for exmpale "biologi" is added as "biologi", while EXTEND will add "b","i","o","l","o","g","i"
-                # print('träningsdata', data)
-                # time.sleep(2)
-                class_words_training_data[data['class']].append(data['word'])
-            
-            else:
-                # tokenize each sentence in our traning data into words
-                #For example: "matematik specialisering" => "matematik", "specialisering"
-                for word in nltk.word_tokenize(data['word']):  
-                    # stem and lowercase each word
-                    stemmed_word = stemmer.stem(word.lower())
-                    # print('word in tokenized wordk',  word)
-                    # time.sleep(2)
-                    # print('stemmed',  stemmed_word)
-                    # time.sleep(2)
-                    # have we not seen this word already?
-                    #if stemmed_word not in corpus_words:
-                    #corpus_words[stemmed_word] = 1
-                    #corpus_words[stemmed_word] += 1
-                    # add the word to our words in class list
-                    class_words_training_data[data['class']].extend([stemmed_word])
-        return class_words_training_data
-
-
     class_words_training_data = tokenize_stem_trainingData()
     #creates a list with all courses and their corresponding class and score
     #This function is called upon in the "summarize_class_scores" function
@@ -1365,72 +1017,6 @@ def update_graphs(rows,active_cell,n_clicks,derived_virtual_selected_rows,derive
     #Iterate thorugh MVG, VG, G, IG , A, B ,C,D,F
     for g in grade_and_their_score_dict["Betyg"]: #MVG, VG, G, IG, A, B etc
         number_of_grades = calc_nbr_grade(d,g)
-
-
-            #------------------------------------------------------------------------------------------------------------------------
-        #A function that returns each class with corresponding scores. Summarizes all class scores. 
-        #Input: A collected_all_list, eg a list with courses and their correspodning score and class
-        #Input: a dict, class|score|course från collect_all_list funktionen
-        #        miljö| 0,6 | Biologi A
-        #Output: Klass | Nbr of courses | Averg. score | Included courses ()
-        #Summerar alla kurser som tillhör en speciell klass. 
-    def summarize_class_scores(dic):
-        pd.set_option('display.max_colwidth', None)
-        courses_with_scores = pd.DataFrame({
-        'Klass: ': [],
-        'Score: ': [],
-        'Nbr of courses: ': [],
-        #Eftersom poängen inom varje klasss är eorende av antalet kurser (och inte enbart betygen) så behöver vi räkna ut ett snitt för varje klass.
-        'Averg. score: ': [],
-        'Included courses ': [],
-        })
-        
-        #Will be the same length as the number of classes
-        klass = []
-        #Will be the same length as the number of classes
-        scores = []
-        averg_score =[]
-        nbr_of_courses =[]
-        #Inlcuded_courses is a list that will contain lists (courses), => A list of lists
-        included_courses = []
-
-        for ind in dic.index:
-            #For each unique class. Keeps track of which array to fill in duplicates
-            if dic['Klass'][ind] not in klass:
-                klass.append(dic['Klass'][ind])
-                scores.append(dic['Score'][ind])
-                nbr_of_courses.append(1)
-                averg_score.append(dic['Score'][ind])
-                courses = [dic['Kurs'][ind]]
-                included_courses.append(courses)
-
-            else:
-                #If the class alrdy existe within the list, add the scores to the end of the score list
-                #Get the index where the first class is laying
-                class_index = klass.index(dic['Klass'][ind])
-            
-                #Get index where course should be inserted
-                #The new score equals the old score + the new one. The index is the same as the index for the class
-                new_score = scores[class_index] + dic['Score'][ind]
-                #Update the class score
-                scores[class_index] = new_score
-                averg_score[class_index] = new_score
-                nbr_of_courses[class_index] =  nbr_of_courses[class_index] +1 
-                averg_score[class_index] = new_score/nbr_of_courses[class_index]
-                #use append, since included_courses is a list of lists
-                if dic['Kurs'][ind] not in included_courses:
-                    included_courses[class_index].append(dic['Kurs'][ind])
-
-        #print("COURSE DATA-----------", course_data)
-        courses_with_scores['Klass'] = klass
-        courses_with_scores['Score'] = scores
-        courses_with_scores['Nbr of courses'] = nbr_of_courses
-        courses_with_scores['Averg. score'] =  averg_score
-        courses_with_scores['Included courses'] =  included_courses
-        courses_with_scores.dropna(how='all', axis=1, inplace=True) 
-
-        return courses_with_scores
-        #print(courses_with_scores)
 
     
       # print("NUMBER OF GRADES", number_of_grades)
