@@ -1,9 +1,9 @@
 <template>
-    <div class = "card" >
+    <div class = "card-ai" >
          
-        <div id="description">
-            <div id = container>
-                <h5>Ta reda på dina betyg & behörighet</h5>
+        <div id="description-ai">
+            <div id = container-ai>
+                <h3>Ta reda på dina betyg & behörighet</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/ai.png" width=40% height=40% ></div>
             </div>
            
@@ -22,16 +22,25 @@
 
 <style>
 
-.card{
-    background-color: rgb(255, 207, 118);
+.card-ai{
+    background-color: #9e8681;
+    width:15vw;
+    height: 22vh;
+    margin-top:-1rem;
+    border-radius: 1.4rem;
+}
+
+.card-ai:hover{
+   transform: scale(1.1); 
+   box-shadow: 52px 52px 52px rgba(0, 0, 0, 0.2);
 
 }
 
-#container{
+#container-ai{
     margin: 0.2rem;
 }
 
-#description{
+#description-ai{
     padding: 0.1rem;
 }
 
@@ -42,8 +51,11 @@
     margin-top: -1rem;
 }
 
-h5{
+h3{
     text-align: center;
+    padding:6px;
+    font-family: 'Lato', sans-serif;
+    color:rgb(255, 255, 255);
 }
 
 </style>

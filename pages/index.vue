@@ -1,8 +1,7 @@
 <template>
-  <div>
-    <Header/>
-    <SideBar/>
-    <Tutorial/>
+  <div class ="container">
+    <Headertwo/>
+    <!-- <SideBar/> -->
     <CardsContainer/>
   </div>
  
@@ -10,11 +9,10 @@
 
 <script>
 
-import Tutorial from '~/components/Tutorial.vue';
 import CardsContainer from '../components/CardsHomePage/CardsContainer.vue';
-import Header from '~/components/Header.vue';
 import SideBar from '../components/SideBar.vue';
-export default { components: { Tutorial, CardsContainer, Header, SideBar } }
+import Headertwo from '~/components/Headertwo.vue';
+export default { components: {CardsContainer, SideBar, Headertwo } }
 </script>
 
 <style>
@@ -24,5 +22,13 @@ export default { components: { Tutorial, CardsContainer, Header, SideBar } }
   align-self: right;
 
 } */
+
+.container{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items:left;
+}
 
 </style>

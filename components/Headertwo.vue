@@ -1,0 +1,459 @@
+<template>
+    <div class="body">
+
+        <div class="login-profile">
+                <nuxt-link to="/SignUp"><h1 id = "about">Om oss</h1></nuxt-link>
+                <nuxt-link to="/SignUp"><h1 id = "about">Kontakt</h1></nuxt-link>
+                <div class = "profile">
+                    <font-awesome-icon id="icon-user" fa-6x :icon="['fa', 'user']" style="font-size: 1rem"/>
+                    <nuxt-link to="/LoggedInContent/PersonalPage"><h1 id = "my-profile">Logga in</h1></nuxt-link>
+                </div>
+            </div>
+
+        <div class="header">
+
+
+            <div class="title-container">
+            <nuxt-link to="/"><h1 id = "title">studielabbet.</h1></nuxt-link>
+            </div>
+
+            <div id ="rolling-text">
+                <vue-typed-js :strings="['Kommer jag in som reserv?', 'Hur stora är mina chanser?','Räcker mina betyg?', 'Vilken utbildning passar mig?', 
+                'Är jag behörig?','lugn..', 'Vi på Studielabbet hjälper dig!']" :loop="true" :typeSpeed="40" :backSpeed="40" :backDelay="3000" :startDelay="4000">
+                <h3 class="typing"></h3>
+                </vue-typed-js>
+            </div>
+
+            <div class ="additional-text">
+                 <p>Vi har utvecklat unika och kraftfulla verktyg som underlättar livet för dig som blivande student. Scrolla ner så berättar vi mer!
+                 </p>
+            </div>
+
+            <div class="kommer-jag-in-btn">
+                
+            <div id="container">
+                <button class="learn-more">
+                    <span class="circle" aria-hidden="true">
+                    <span class="icon arrow"></span>
+                    </span>
+                    <span class="button-text"> Skapa ett konto</span>
+                </button>
+                </div>
+            </div>
+            <div class="arrow-container">
+                <div class="arrow-down"></div>
+            </div>
+
+                        
+
+        </div>
+
+
+
+
+
+   
+
+ 
+
+    
+        <!-- <h2>{{$nuxt.$fire.auth.currentUser.email}}</h2> -->
+
+    </div>
+</template>
+
+<script>
+import Vue from 'vue'
+import VueTypedJs from 'vue-typed-js'
+Vue.use(VueTypedJs)
+
+    export default {
+        
+    }
+</script>
+
+<style lang="scss">
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Rubik+Mono+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Lato:wght@700&family=Poppins:wght@400;900&family=Rubik+Mono+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Lato:wght@300;700&family=Poppins:wght@400;900&family=Rubik+Mono+One&display=swap');
+/* font-family: 'Anton', sans-serif;
+font-family: 'Lato', sans-serif;
+font-family: 'Poppins', sans-serif;
+font-family: 'Rubik Mono One', sans-serif; */
+
+.arrow-container{
+    position:absolute;
+    margin-left:3rem;
+    bottom: -3rem;
+}
+
+
+#rolling-text{
+      position:absolute;
+      display:flex;
+      flex-wrap: wrap;
+      color: rgb(0, 0, 0);
+      background-color: rgb(221, 232, 233);
+      margin-top:30vh;
+      font-size: 2rem;
+      font-family: 'Lato', sans-serif;
+      margin-left: 2rem;
+      text-align: center;
+    
+  
+}
+
+.additional-text{
+      position:absolute;
+      display:flex;
+      flex-wrap: wrap;
+    //   color: rgb(0, 0, 0);
+      margin-top:40vh;
+      font-size: 2rem;
+      font-family: 'Lato', sans-serif;
+      margin-left: 2rem;
+      text-align: center;
+    
+}
+
+.additional-text{
+    color:rgb(0, 0, 0);
+    font-size: 1.4rem;
+    width: 55vw;
+    text-align:center;
+}
+
+.header{
+    display:flex;
+    flex-direction: row;
+    /* background-image: url("~assets/images/background.svg"); */
+    height: 80vh;
+    width:100vw;
+    background-color: rgb(221, 232, 233);
+    margin-top: -2rem;
+    margin-left:-2rem;
+    /* margin-top: -10rem; */
+    /* display: flex; */
+    /* padding: 0.7rem; */
+    z-index: 2;
+    overflow:hidden;
+    justify-content: center;
+    
+    
+    /* flex-direction: row;
+    justify-content: space-between; */
+    /* margin-bottom: 10rem; */
+
+}
+
+.title-container{
+     margin-top: 15vh;
+}
+
+#title:hover{
+      font-size: 3.7vw;
+}
+
+.login-profile{
+    
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    // background-color: #f35730;
+    width:95vw;
+    // right:0;
+    justify-content: space-evenly;
+    
+    // padding: 2rem;
+    margin-top: -1.9rem;
+    /* background-color: aliceblue; */
+    
+    }
+
+ #icon-user{
+    // margin-left:1rem;
+ }
+
+#about{
+    color: rgb(0, 0, 0);
+    margin-top: 3rem;
+    font-size: 1.6rem;
+}
+
+.profile{
+    display:flex ;
+    flex-direction: column;
+    align-items: center;
+    color: rgb(0, 0, 0);
+    margin-top: 2rem;
+    // font-size: 1.6rem;
+}
+
+#my-profile{
+    color:black;
+    font-size: 1.6rem;
+}
+
+#title{
+    color:rgb(0, 0, 0);
+    /* margin-top: 2rem; */
+    position:relative;
+    font-size: 3.5vw;
+    margin-left: 3rem;
+    font-family: 'Anton', sans-serif;
+    
+   
+}
+
+#title-2{
+    color:rgb(232, 232, 232);
+    /* margin-top: 4rem; */
+    /* margin-left: 3rem; */
+    position:relative;
+    font-size: 1.2vw;
+    /* margin-bottom: -2rem; */
+    font-family: 'Anton', sans-serif;
+
+}
+
+.kommer-jag-in-btn{
+    color:white;
+    position:absolute;
+    border: white;
+    margin-top:52vh;
+    margin-left: 1rem;
+}
+
+
+
+@media only screen and (min-width: 1025px) {
+.header {
+background-position:initial;
+}
+}
+
+
+
+@import url('https://fonts.googleapis.com/css?family=Mukta:700');
+
+$bg: #f3f8fa;
+$white: #fff;
+$black: #f35730;
+
+@mixin transition($property: all, $duration: 0.45s, $ease: cubic-bezier(0.65,0,.076,1)) {
+  transition: $property $duration $ease;
+}
+
+* {
+  box-sizing: border-box;
+  &::before, &::after {
+    box-sizing: border-box;
+  }
+}
+
+body {
+  font-family: 'Mukta', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+  margin: 0;
+  min-height: 100vh;
+  background: $bg;
+}
+
+button {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  outline: none;
+  border: 0;
+  vertical-align: middle;
+  text-decoration: none;
+  background: transparent;
+  padding: 0;
+  margin-left:1rem;
+  font-size: inherit;
+  font-family: inherit;
+  &.learn-more {
+    width: 12rem;
+    height: auto;
+    .circle {
+      @include transition(all, 0.45s, cubic-bezier(0.65,0,.076,1));
+      position: relative;
+      display: block;
+      margin: 0;
+      margin-left: -0.4rem;
+      width: 3rem;
+      height: 3rem;
+      background: $black;
+      border-radius: 1.625rem;
+      .icon {
+        @include transition(all, 0.45s, cubic-bezier(0.65,0,.076,1));
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        background: $white;
+        &.arrow {
+          @include transition(all, 0.45s, cubic-bezier(0.65,0,.076,1));
+          left: 0.625rem;
+          width: 1.125rem;
+          height: 0.125rem;
+          background: none;
+          &::before {
+            position: absolute;
+            content: '';
+            top: -0.25rem;
+            right: 0.0625rem;
+            width: 0.625rem;
+            height: 0.625rem;
+            border-top: 0.125rem solid #fff;
+            border-right: 0.125rem solid #fff;
+            transform: rotate(45deg);
+          }
+        }
+      }
+    }
+    .button-text {
+      @include transition(all, 0.45s, cubic-bezier(0.65,0,.076,1));
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 0.75rem 0;
+      margin: 0 0 0 1.85rem;
+      color: $black;
+      font-weight: 700;
+      line-height: 1.6;
+      text-align: center;
+      text-transform: uppercase;
+    }
+  }
+  &:hover {
+    .circle {
+      width: 100%;
+      .icon {
+        &.arrow {
+        background: $white;
+        transform: translate(1rem, 0);
+        }
+      }
+    }
+    .button-text {
+      color: $white;
+    }
+  }
+}
+
+@supports (display: grid) {
+  body {
+    display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 0.625rem;
+  grid-template-areas: ". main main ." ". main main .";
+  }
+  
+  #container {
+    grid-area: main;
+    align-self: center;
+    justify-self: center;
+  }
+}
+
+
+
+.arrow-container {
+  width: 30px;
+  /* cubic-bezier-easing = sine / mehr Beispiele: https://easings.net/ */
+  animation: bounce 1600ms infinite cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  cursor: pointer;
+  height: 15px;
+}
+
+.arrow-down {
+  height: 6px;
+  background: black;
+  transform: rotate(45deg);
+  transform-origin: 0% 0%;
+  border-radius: 5px;
+}
+.arrow-down:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  bottom: 0;
+  left: 100%;
+  border-radius: 5px;
+  background: black;
+  transform: rotate(-90deg);
+  transform-origin: 0% 100%;
+}
+
+@keyframes bounce {
+50% {
+    transform: translateY(-15px);
+  }
+}
+
+
+
+
+// scroll-bar-----------------------
+::-webkit-scrollbar {
+  width: 20px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: red; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #b30000; 
+}
+
+
+
+
+
+
+
+
+#about, #my-profile {
+  --s: 0.1em;   /* the thickness of the line */
+  --c: #ffffff; /* the color */
+  
+  color: #0000;
+  padding-bottom: var(--s);
+  background: 
+    linear-gradient(90deg,var(--c) 50%,#000 0) calc(100% - var(--_p,0%))/200% 100%,
+    linear-gradient(var(--c) 0 0) 0% 100%/var(--_p,0%) var(--s) no-repeat;
+  -webkit-background-clip: text,padding-box;
+          background-clip: text,padding-box;
+  transition: 0.5s;
+}
+#about:hover , #my-profile:hover {
+  --_p: 100%
+}
+
+
+
+
+
+
+
+</style>

@@ -1,9 +1,9 @@
 <template>
-    <div class = "card" >
+    <div class = "card-calc" >
 
-        <div id="description">
-            <div id = container>
-                <h5>Ta reda på dina betyg & behörighet</h5>
+        <div id="description-calc">
+            <div id = contcalcner-calc>
+                <h3>Ta reda på dina betyg & behörighet</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/räkna.png" width=40% height=40% ></div>
             </div>
            
@@ -19,19 +19,27 @@
         
     }
 </script>
-
 <style>
 
-.card{
-    background-color: rgb(255, 207, 118);
+.card-calc{
+    background-color: #9e8681;
+    width:15vw;
+    height: 22vh;
+    margin-top:-1rem;
+    border-radius: 1.4rem;
+}
+
+.card-calc:hover{
+   transform: scale(1.1); 
+   box-shadow: 52px 52px 52px rgba(0, 0, 0, 0.2);
 
 }
 
-#container{
+#contcalcner-calc{
     margin: 0.2rem;
 }
 
-#description{
+#description-calc{
     padding: 0.1rem;
 }
 
@@ -42,8 +50,11 @@
     margin-top: -1rem;
 }
 
-h5{
+h3{
     text-align: center;
+    padding:6px;
+    font-family: 'Lato', sans-serif;
+    color:rgb(255, 255, 255);
 }
 
 </style>

@@ -9,6 +9,8 @@ import dash_table as dt
 import dash_core_components as dcc
 from dash.exceptions import PreventUpdate
 from data_for_training import traning_data_courses
+
+from calculations import norm_grade, calc_grade_diff, grade, calc_grade, remove_HighestGrades, what_to_focus_on, bayes, return_d
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import pprint
@@ -24,6 +26,7 @@ import numpy as np
 from itertools import chain
 import mplcursors
 import json 
+from prerequisite_courses import pre_edu, prerequisite_data
 import nltk
 from educationData import education_data_engineering
 from educationData import education_data_health
@@ -165,61 +168,6 @@ def blank_fig():
     return fig
 
 
-
-
-def grade(df):
-    #Om betygen INTE är en String, betyder det att vi har använt oss av grade-funkionen en gång innan. Då ska vi 
-    #bara returnera df utan att gå in och ändra
-    if type(df['Betyg'][0]) != str:
-        return df
-        
-    
-    #Loopa igenom dina betyg, dataframe
-    for ind in df.index:
-
-        string_grade = df['Betyg'][ind] # T.ex "VG" eller "B"
-
-        int_grade_index = list(grade_and_their_score_dict_df['Betyg']).index(string_grade.upper()) #Få fram index för där "VG" Ligger, så vi kan hämta motsvarande score
-        #int_grade_index = 2 #Få fram index för där "VG" Ligger, så vi kan hämta motsvarande score
-        
-        int_grade = grade_and_their_score_dict_df['Score'][int_grade_index]
-        df['Betyg'][ind] = int_grade
-    
-    
-    return df
-
-def calc_tot_points(d):
-    df = pd.DataFrame(data=d) #en lokal kopia av betygen
-    tot_points = 0
-    for ind in df['Storlek']:
-        tot_points += ind
-    return tot_points
-
-def norm_grade(d):
-    df = pd.DataFrame(data=d)
-    #Använder hjälpfunktionen för att beräkna
-    df1 = grade(df)
-    tot_points = calc_tot_points(d)
-    for ind in df1.index:
-        grade1 = df1['Betyg'][ind] #T.ex "MVG" eller "A"
-        points =df1['Storlek'][ind] #T.ex 100 eller 50
-        normed_grade = grade1*points/tot_points
-        df1['Betyg'][ind] = normed_grade
-    return df1
-
-def calc_grade(d):
-    df = norm_grade(d) #Calling the norm grade function to normalize your grade
-    grade1 = 0
-    for ind in df.index:
-        grade1 = grade1 + df['Betyg'][ind]
-    #print('Ditt betyg (utan meritpoäng) är: ', grade)
-    #Meritpoäng is given for 
-    return grade1
-
-
-
-
-
 #From dict to dataframe
 #Convert grades from dash table to dataframe
 def d_to_df(d):
@@ -269,8 +217,6 @@ def tokenize_stem_trainingData():
                 class_words_training_data[data['class']].extend([stemmed_word])
     return class_words_training_data
 
-
-
     #------------------------------------------------------------------------------------------------------------------------
     #A function that returns each class with corresponding scores. Summarizes all class scores. 
     #Input: A collected_all_list, eg a list with courses and their correspodning score and class
@@ -278,6 +224,7 @@ def tokenize_stem_trainingData():
     #        miljö| 0,6 | Biologi A
     #Output: Klass | Nbr of courses | Averg. score | Included courses ()
     #Summerar alla kurser som tillhör en speciell klass. 
+    #Can be used to list all courses within a given class.
 def summarize_class_scores(dic):
     pd.set_option('display.max_colwidth', None)
     courses_with_scores = pd.DataFrame({
@@ -335,6 +282,83 @@ def summarize_class_scores(dic):
 
     return courses_with_scores
     #print(courses_with_scores)
+
+#--------------------------------------------------------------------------------------------------
+
+
+def qualification(df, your_grade):
+
+  d = return_d(your_grade)
+#   print(d["Kurs"])
+#   import time
+#   time.sleep(100)
+
+  #En lista där vi lägger in alla våra behörigheter. Ex [A1, A2, A3].
+  qual_list = []
+  ind = -1
+#   inner_counter = 0
+  counter_to_fullfull = 0
+  import time
+  
+  for courses in df['Kurser']: 
+    counter_to_fullfull = 0
+    ind +=1  #    courses =  "Kurser" : [ ["Fysik B"], ["kemi A"], ["Matematik D"] ], 'Education':["Högskoleingenjör", "Ortopedingenjör"]})
+    # df["Kurser] =     
+    #in order for someone to fullfill this behörighet, we need a counter. The counter must me equal to the lenght of courses, in the example above counter = 4
+    print("courses", courses)
+    print("len courses", len(courses))
+    print("-------")
+    
+    for course in courses:#   course = #ONLY ONE COURSE MUST BE FULLFILLED
+        # course = ["Fysik B"] 
+        # course = ["fysikA A", "Kemi A", "Biologi A"]
+        print("course", course)
+        inner_counter = 0
+
+
+        #Det räcker att minst 1 av kurserna återfinns
+        #count ar bara ett argument
+        # i är av typen "list", kan vara nestlade listor
+        for i in course: # 
+            print("i",i)
+            print("len course", len(course))
+
+            # print(i.lower())
+            # print("-----")
+            # print(d["Kurs"])
+            # time.sleep(5)
+            if i.lower() in list(d["Kurs"]): #If the course exist in our grades
+                print("Inne")
+                inner_counter += 1
+                print("inner_counter", inner_counter)
+
+                if inner_counter >= len(course):
+                    counter_to_fullfull += 1
+                    print("counter_to_fullfull", counter_to_fullfull)
+                    # print("counter_to_fullfull",counter_to_fullfull)
+
+        if counter_to_fullfull >= len(courses):
+            #Behörighet upfylls
+            qual_list.append(df["Områdesbehörighet"][ind])
+            counter_to_fullfull = 0
+            print("Du uppfyller kraven för:", qual_list)
+
+
+    
+    # return qual_list
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 education_class_dataFrame1 = education_data_engineering.create_engi()
@@ -412,7 +436,8 @@ app.layout = html.Div([
 
             html.Div([
             html.H1(children='ANTAL BETYG'),
-            html.Div(id="nbr_grades", children=[])
+            html.Div(id="nbr_grades", children=[]),
+            html.Div(id="qual-list", children=[])
 
             ]),
         ], className='six columns'),
@@ -688,6 +713,7 @@ def update_graphs(url, n_clicks):
 
 
 
+#This callback fires when we press the "find education" button, to match our profile to educations
 @app.callback(Output("match-edu-div", "children"),
 State('adding-rows-table', 'derived_virtual_data'),
 State('adding-rows-table', "derived_virtual_selected_rows"),
@@ -758,8 +784,14 @@ def find_education(rows,derived_virtual_selected_rows, n_clicks):
 
         course_name = dff["column-0"].tolist()
         code = dff["column-1"].tolist()
+
+        dff["column-2"]= dff["column-2"].replace('',0)
         grades = dff["column-2"].tolist()
+        print(grades)
+
+        dff["column-3"]= dff["column-3"].replace('',0)
         credits = dff["column-3"].tolist()
+        print(credits)
 
         import time
 
@@ -1057,19 +1089,7 @@ def find_education(rows,derived_virtual_selected_rows, n_clicks):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-#This callback fires when we change data
+#This callback fires when we change data in the data table, i.e change a VG to a G or something like that
 #returns a graph
 @app.callback(
     Output('datatable-interactivity-container','children'),
@@ -1077,6 +1097,7 @@ def find_education(rows,derived_virtual_selected_rows, n_clicks):
     Output('graph-classes', "figure"),
     Output('graph-classes-grade-occurence', "figure"),
     Output('nbr_grades', "children"),
+    Output('qual-list', "children"),
     Input('adding-rows-table', 'derived_virtual_data'),
     State('adding-rows-table', 'active_cell'), #Change from input to state, since we dont want everything inside
     #this callback to run everytime we press something, only when we change data
@@ -1161,8 +1182,14 @@ def update_graphs(rows,active_cell,n_clicks,derived_virtual_selected_rows,derive
  
     course_name = dff["column-0"].tolist()
     code = dff["column-1"].tolist()
+    dff["column-2"]= dff["column-2"].replace('',"IG")
     grades = dff["column-2"].tolist()
+    print(grades)
+
+    dff["column-3"]= dff["column-3"].replace('',0)
     credits = dff["column-3"].tolist()
+    # print(credits)
+
 
     # d is used to calculate grades etc
     d = {
@@ -1453,6 +1480,8 @@ def update_graphs(rows,active_cell,n_clicks,derived_virtual_selected_rows,derive
         df1['Antal betyg'] =grade_list
         return df1
 
+
+
     #With this function we get number of grades in a given class (a_class)
     #Related function: calc_nbr_grades_in_each_class
     def nbr_grade_in_givven_class(d,a_grade, a_class):
@@ -1554,7 +1583,19 @@ def update_graphs(rows,active_cell,n_clicks,derived_virtual_selected_rows,derive
             dff["column-2"][grade] = 0
 
     session["page-refreshed"] = False
+    dff.rename(columns = {'column-0':'Kurs'}, inplace = True)
+    dff.rename(columns = {'column-1':'Kurskod'}, inplace = True)
     dff.rename(columns = {'column-2':'Betyg'}, inplace = True)
+    dff.rename(columns = {'column-3':'Score'}, inplace = True)
+
+
+    
+    #Input to pre_edu is a dict and a dataframe with all prerequisite courses is returned
+    #d in qualification is your grades
+    print(dff)
+    print(pre_edu(prerequisite_data))
+    qual_list = qualification(pre_edu(prerequisite_data), dff)
+    print(qual_list)
 
     return [
       
@@ -1563,7 +1604,7 @@ def update_graphs(rows,active_cell,n_clicks,derived_virtual_selected_rows,derive
             figure={
                 "data": [
                     {
-                        "x": dff["column-0"],
+                        "x": dff["Kurs"],
                         "y": dff["Betyg"],
                         "type": "bar",
                         "marker": {"color": colors},
@@ -1583,8 +1624,8 @@ def update_graphs(rows,active_cell,n_clicks,derived_virtual_selected_rows,derive
         # check if column exists - user may have deleted it
         # If `column.deletable=False`, then you don't
         # need to do this check.
-        for column in ["column-0"] if column in dff
-    ], your_grade, pie_chart, fig_grade_occurence,[number_of_grades["Betyg"][0], ":" ,number_of_grades["Antal"][0]]
+        for column in ["Kurs"] if column in dff
+    ], your_grade, pie_chart, fig_grade_occurence,[number_of_grades["Betyg"][0], ":" ,number_of_grades["Antal"][0]], qual_list
     
 
 

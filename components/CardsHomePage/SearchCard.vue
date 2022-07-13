@@ -1,9 +1,9 @@
 <template>
-    <div class = "card" >
+    <div class = "card-search" >
 
-        <div id="description">
-            <div id = container>
-                <h5>Använd vår unika sökfunktion</h5>
+        <div id="description-search">
+            <div id = container-search>
+                <h3>Använd vår unika sökfunktion</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/sök.png" width=40% height=40% ></div>
             </div>
            
@@ -20,31 +20,45 @@
     }
 </script>
 
+
 <style>
 
-.card{
-    background-color: rgb(255, 207, 118);
-    width: 8rem;
-    height: 8rem;
+.card-search{
+    background-color: #acb4b5;
+    width:15vw;
+    height: 22vh;
+    margin-top:-1rem;
+    border-radius: 1.4rem;
+    border-style: solid;
+    border-color: rgb(74, 86, 85);
 }
 
-#container{
+.card-search:hover{
+   transform: scale(1.1); 
+   box-shadow: 52px 52px 52px rgba(0, 0, 0, 0.2);
+
+}
+
+#container-search{
     margin: 0.2rem;
 }
 
-#description{
+#description-search{
     padding: 0.1rem;
 }
 
-#image-search{
+#image-styrkor{
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: -1rem;
 }
 
-h5{
+h3{
     text-align: center;
+    padding:6px;
+    font-family: 'Lato', sans-serif;
+    color:rgb(255, 255, 255);
 }
 
 </style>

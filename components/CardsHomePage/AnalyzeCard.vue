@@ -1,9 +1,9 @@
 <template>
-    <div class = "card" >
+    <div class = "card-analyze" >
 
-        <div id="description">
-            <div id = container>
-                <h5>Analyser dina styrkor & svagheter</h5>
+        <div id="description-analyze">
+            <div id = container-analyze>
+                <h3>Analyser dina styrkor & svagheter</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/styrkor.png" width=40% height=40% ></div>
             </div>
            
@@ -22,15 +22,27 @@
 
 <style>
 
-.card{
-    background-color: rgb(255, 207, 118);
+.card-analyze{
+    background-color: #f35730;
+    width:15vw;
+    height: 22vh;
+    margin-top:-1rem;
+    border-radius: 1.4rem;
+    border-style: solid;
+    border-color: #000000;
 }
 
-#container{
+.card-analyze:hover{
+   transform: scale(1.1); 
+   box-shadow: 52px 52px 52px rgba(0, 0, 0, 0.2);
+
+}
+
+#container-analyze{
     margin: 0.2rem;
 }
 
-#description{
+#description-analyze{
     padding: 0.1rem;
 }
 
@@ -41,8 +53,11 @@
     margin-top: -1rem;
 }
 
-h5{
+h3{
     text-align: center;
+    padding:6px;
+    font-family: 'Lato', sans-serif;
+    color:rgb(255, 255, 255);
 }
 
 </style>

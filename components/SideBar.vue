@@ -34,15 +34,17 @@
 
 <style>
 .container-side-bar{
-    background-color: rgb(21, 32, 57);
-    position:absolute;
+    background-color: #1F354C;
+    position:fixed;
     display:flex;
     flex-direction: column;
     align-items: center;
     align-content: center;
     justify-content: center;
-    right:2rem;
-    
+    right:0rem;
+    width: 20vw;
+    height:100vh;   
+    top:0rem; 
    
 }
 

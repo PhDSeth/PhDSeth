@@ -1,9 +1,9 @@
 <template>
-    <div class = "card" >
+    <div class = "card-goal" >
 
-        <div id="description">
-            <div id = container>
-                <h3 id ="goal">Sätt upp & följ dina mål</h3>
+        <div id="description-goal">
+            <div id = container-goal>
+                <h3 id ="goal-goal">Sätt upp & följ dina mål</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/mål.png" width=40% height=40% ></div>
             </div>
            
@@ -22,16 +22,27 @@
 
 <style>
 
-.card{
-    background-color: rgb(255, 207, 118);
-    padding: 1 rem;
+.card-goal{
+    background-color: #acb4b5;
+    width:15vw;
+    height: 22vh;
+    margin-top:-1rem;
+    border-radius: 1.4rem;
+    border-style: solid;
+    border-color: rgb(74, 86, 85);
 }
 
-#container{
+.card-goal:hover{
+   transform: scale(1.1); 
+   box-shadow: 52px 52px 52px rgba(0, 0, 0, 0.2);
+
+}
+
+#container-goal{
     margin: 0.2rem;
 }
 
-#description{
+#description-goal{
     padding: 0.1rem;
 }
 
@@ -42,8 +53,11 @@
     margin-top: -1rem;
 }
 
-#goal{
+h3{
     text-align: center;
+    padding:6px;
+    font-family: 'Lato', sans-serif;
+    color:rgb(255, 255, 255);
 }
 
 </style>

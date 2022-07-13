@@ -1,10 +1,13 @@
 <template>
     <div class="card-container">
-        <AnalyzeCard/>
-        <SearchCard/>
-        <CalcCard/>
-        <GoalsCard/>
-        <AiCard/>
+
+        <div> <AnalyzeCard/></div>
+        <div> <SearchCard/></div>
+        <div> <CalcCard/></div>
+        <div> <GoalsCard/></div>
+        <div>    <AiCard/></div>
+       
+    
     </div>
 </template>
 
@@ -23,12 +26,25 @@ import AiCard from './AiCard.vue'
 <style>
 
 .card-container{
+    position: relative;
+    /* margin-top: -10rem; */
+    /* background-color: chocolate;
+     */
+    margin-top: -6rem;
     display: flex;
     align-items: center;
+    flex-wrap:wrap;
     justify-content: space-around;
-    margin-top: 4rem;
-    padding-left: 20rem;
-    padding-right: 20rem;
+    gap: 1px;
+    z-index: 10;
+    /* margin: 1rem; */
+    /* margin-top: 4rem; */
+    /* padding-left: 20rem; */
+    /* padding:1rem; */
+    flex-wrap: wrap;
+    width : 100vw;  
+    margin-left:-1rem;
+    /* margin-left: 2rem; */
 
 
 }
