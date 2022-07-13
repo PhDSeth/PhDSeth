@@ -23,18 +23,19 @@
 <style>
 
 .card-analyze{
-    background-color: #f35730;
+    background-color: #2f6690;
     width:15vw;
     height: 22vh;
     margin-top:-1rem;
     border-radius: 1.4rem;
     border-style: solid;
-    border-color: #000000;
+    border-color: 344966;
 }
 
 .card-analyze:hover{
    transform: scale(1.1); 
    box-shadow: 52px 52px 52px rgba(0, 0, 0, 0.2);
+   transform: translateY(-10px)
 
 }
 

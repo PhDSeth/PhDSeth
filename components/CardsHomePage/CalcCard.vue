@@ -22,16 +22,19 @@
 <style>
 
 .card-calc{
-    background-color: #9e8681;
+    background-color: #2f6690;
     width:15vw;
     height: 22vh;
     margin-top:-1rem;
     border-radius: 1.4rem;
+    border-style: solid;
+    border-color: 344966;
 }
 
 .card-calc:hover{
    transform: scale(1.1); 
    box-shadow: 52px 52px 52px rgba(0, 0, 0, 0.2);
+   transform: translateY(-10px)
 
 }
 

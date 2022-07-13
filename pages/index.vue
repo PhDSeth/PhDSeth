@@ -1,8 +1,8 @@
 <template>
   <div class ="container">
     <Headertwo/>
-    <!-- <SideBar/> -->
     <CardsContainer/>
+    <SideBar/>
   </div>
  
 </template>
@@ -10,7 +10,7 @@
 <script>
 
 import CardsContainer from '../components/CardsHomePage/CardsContainer.vue';
-import SideBar from '../components/SideBar.vue';
+import SideBar from '../components/InfoSections/SideBar.vue';
 import Headertwo from '~/components/Headertwo.vue';
 export default { components: {CardsContainer, SideBar, Headertwo } }
 </script>

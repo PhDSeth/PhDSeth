@@ -95,14 +95,18 @@ font-family: 'Rubik Mono One', sans-serif; */
       display:flex;
       flex-wrap: wrap;
       color: rgb(0, 0, 0);
-      background-color: rgb(221, 232, 233);
+      background-color: #dce2db;
       margin-top:30vh;
       font-size: 2rem;
       font-family: 'Lato', sans-serif;
       margin-left: 2rem;
       text-align: center;
-    
-  
+
+}
+
+.typing{
+    // color:#000;
+    color:rgb(255, 255, 255);
 }
 
 .additional-text{
@@ -131,7 +135,8 @@ font-family: 'Rubik Mono One', sans-serif; */
     /* background-image: url("~assets/images/background.svg"); */
     height: 80vh;
     width:100vw;
-    background-color: rgb(221, 232, 233);
+    // background-color: rgb(221, 232, 233);
+    background-color: #dce2db;
     margin-top: -2rem;
     margin-left:-2rem;
     /* margin-top: -10rem; */
@@ -417,13 +422,15 @@ button {
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: red; 
+  background: rgb(255, 255, 255); 
+  border:solid;
+  border-block-color: black;
   border-radius: 10px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #b30000; 
+  background: #000000; 
 }
 
 
