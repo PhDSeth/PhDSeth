@@ -1,5 +1,7 @@
 <template>
     <div class="body">
+          <div id="top">
+        </div>
 
         <div class="login-profile">
                 <nuxt-link to="/SignUp"><h1 id = "about">Om oss</h1></nuxt-link>
@@ -9,7 +11,7 @@
                     <nuxt-link to="/LoggedInContent/PersonalPage"><h1 id = "my-profile">Logga in</h1></nuxt-link>
                 </div>
             </div>
-
+         
         <div class="header">
 
 
@@ -25,7 +27,9 @@
             </div>
 
             <div class ="additional-text">
-                 <p>Vi har utvecklat unika och kraftfulla verktyg som underlättar livet för dig som blivande student. Scrolla ner så berättar vi mer!
+                 <p>Vi har utvecklat unika och kraftfulla verktyg som underlättar livet för dig som blivande student.
+                  <br>
+                  Scrolla ner så berättar vi mer!
                  </p>
             </div>
 
@@ -39,6 +43,8 @@
                     <span class="button-text"> Skapa ett konto</span>
                    
                 </button>
+
+          
                  
                 </div>
             </div>
@@ -49,7 +55,10 @@
                         
 
         </div>
-
+        <div class = "top-button">
+          <a href="#" v-scroll-to="{ element: '#top', duration: 2000}">TOPP</a>
+          <!-- <back-to-top text="Back to top"></back-to-top> -->
+      </div>
 
         <div id="element">
             Hi. I'm #element.
@@ -70,11 +79,19 @@
 </template>
 
 <script>
+
 import Vue from 'vue'
 import VueTypedJs from 'vue-typed-js'
+// import BackToTop from 'vue-backtotop'
 Vue.use(VueTypedJs)
+// import Vue from 'vue'
+// import BackToTop from 'vue-backtotop'
+
+// Vue.use(BackToTop)
 
     export default {
+      // components: { BackToTop }
+      
         
     }
 </script>
@@ -101,7 +118,28 @@ font-family: 'Rubik Mono One', sans-serif; */
   position:absolute;
   margin-top: 100rem;
   
+  
 }
+
+// .top-button{
+//   position:fixed;
+//   background-color: #ffffff;
+//   z-index:10000000000000;
+//   right: 2vw;
+//   border:solid;
+//   border-radius: 10rem;
+//   border-color: #5436cb;
+//   height:3rem;
+//   width:3rem;
+//   // width: 2rem;
+//   // right:-5vw;
+//   margin-top:14vh;
+//     // --offset: 10px; 
+
+//   // margin-top: calc(100vh + var(--offset));
+// }
+
+
 #rolling-text{
       position:absolute;
       display:flex;
@@ -128,11 +166,11 @@ font-family: 'Rubik Mono One', sans-serif; */
       position:absolute;
       display:flex;
       flex-wrap: wrap;
-    //   color: rgb(0, 0, 0);
+      //   color: rgb(0, 0, 0);
       margin-top:40vh;
-      font-size: 2rem;
+      // font-size: 2rem;
       font-family: 'Lato', sans-serif;
-      margin-left: 2rem;
+      margin-left: 15vw;
       text-align: center;
     
 }
@@ -163,7 +201,7 @@ font-family: 'Rubik Mono One', sans-serif; */
     overflow:hidden;
     justify-content: center;
     // border-radius: 1rem 30rem; 
-    background-image: linear-gradient(to right, #8dacf4, #6e21bb);
+    background-image: linear-gradient(to right, #8dacf4, #5436cb);
     
     
     /* flex-direction: row;
@@ -270,7 +308,7 @@ background-position:initial;
 $bg: #f3f8fa;
 $white: #fff;
 // $black: #f35730;
-$black: #f88d47;
+$black: #de7732;
 
 @mixin transition($property: all, $duration: 0.45s, $ease: cubic-bezier(0.65,0,.076,1)) {
   transition: $property $duration $ease;
@@ -407,7 +445,7 @@ button {
 
 .arrow-down {
   height: 6px;
-  background: black;
+  background: #5436cb;
   transform: rotate(45deg);
   transform-origin: 0% 0%;
   border-radius: 5px;
@@ -420,7 +458,7 @@ button {
   bottom: 0;
   left: 100%;
   border-radius: 5px;
-  background: black;
+  background: #5436cb;
   transform: rotate(-90deg);
   transform-origin: 0% 100%;
 }

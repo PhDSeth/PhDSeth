@@ -20,11 +20,10 @@
 </template>
 
 <script>
+import VScrollin from "vue-scrollin";
 
-  import VScrollin from "vue-scrollin";
     export default {
-        
-        
+     
     }
 </script>
 
