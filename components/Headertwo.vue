@@ -37,15 +37,22 @@
                     <span class="icon arrow"></span>
                     </span>
                     <span class="button-text"> Skapa ett konto</span>
+                   
                 </button>
+                 
                 </div>
             </div>
             <div class="arrow-container">
-                <div class="arrow-down"></div>
+                <a href="#" v-scroll-to="{ element: '#element', duration: 3000 }"><div class="arrow-down"></div></a>
             </div>
 
                         
 
+        </div>
+
+
+        <div id="element">
+            Hi. I'm #element.
         </div>
 
 
@@ -89,7 +96,12 @@ font-family: 'Rubik Mono One', sans-serif; */
     bottom: -3rem;
 }
 
+#element{
 
+  position:absolute;
+  margin-top: 100rem;
+  
+}
 #rolling-text{
       position:absolute;
       display:flex;
@@ -151,7 +163,7 @@ font-family: 'Rubik Mono One', sans-serif; */
     overflow:hidden;
     justify-content: center;
     // border-radius: 1rem 30rem; 
-    background-image: linear-gradient(to right, #7598ea, #6c2eca);
+    background-image: linear-gradient(to right, #8dacf4, #6e21bb);
     
     
     /* flex-direction: row;
