@@ -3,7 +3,7 @@
          
         <div id="description-ai">
             <div id = container-ai>
-                <h3>Ta reda på dina betyg & behörighet</h3>
+                <h3 id="ai-text-card">Ta reda på dina betyg & behörighet</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/ai.png" width=40% height=40% ></div>
             </div>
            
@@ -23,13 +23,13 @@
 <style>
 
 .card-ai{
-    background-color: #2f6690;
+    /* background-color: #2f6690; */
+    /* background-color: #284b63; */
+    /* background-color: #4f6367; */
+    background-color: #f3f7fe;
     width:15vw;
     height: 22vh;
     margin-top:-1rem;
-    border-radius: 1.4rem;
-    border-style: solid;
-    border-color: 344966;
 }
 
 .card-ai:hover{
@@ -54,11 +54,11 @@
     margin-top: -1rem;
 }
 
-h3{
+#ai-text-card{
     text-align: center;
     padding:6px;
     font-family: 'Lato', sans-serif;
-    color:rgb(255, 255, 255);
+    color:rgb(0, 0, 0);
 }
 
 </style>

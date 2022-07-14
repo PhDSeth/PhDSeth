@@ -3,7 +3,7 @@
 
         <div id="description-search">
             <div id = container-search>
-                <h3>Använd vår unika sökfunktion</h3>
+                <h3 id="search-text-card">Använd vår unika sökfunktion</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/sök.png" width=40% height=40% ></div>
             </div>
            
@@ -24,13 +24,12 @@
 <style>
 
 .card-search{
-    background-color: #2f6690;
+    /* background-color: #2f6690; */
+    /* background-color: #284b63; */
+     background-color: #f3f7fe;
     width:15vw;
     height: 22vh;
     margin-top:-1rem;
-    border-radius: 1.4rem;
-    border-style: solid;
-    border-color: 344966;
 }
 
 .card-search:hover{
@@ -55,11 +54,11 @@
     margin-top: -1rem;
 }
 
-h3{
+#search-text-card{
     text-align: center;
     padding:6px;
     font-family: 'Lato', sans-serif;
-    color:rgb(255, 255, 255);
+    color:rgb(0, 0, 0);
 }
 
 </style>

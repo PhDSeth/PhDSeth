@@ -29,8 +29,10 @@
     "nuxt-leaflet": "^0.0.27",
     "vue-browser-geolocation": "^1.8.0",
     "vue-iframes": "^0.0.19",
+    "vue-scrollin": "^0.1.2",
     "vue-typed-js": "^0.1.2",
-    "vue3-gmap-custom-marker": "^0.0.5"
+    "vue3-gmap-custom-marker": "^0.0.5",
+    "vuetify": "^2.6.7"
   },
   "devDependencies": {
     "@nuxt/image": "^0.6.2",

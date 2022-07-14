@@ -3,7 +3,7 @@
 
         <div id="description-analyze">
             <div id = container-analyze>
-                <h3>Analyser dina styrkor & svagheter</h3>
+                <h3 id="analyze-text-card">Analyser dina styrkor & svagheter</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/styrkor.png" width=40% height=40% ></div>
             </div>
            
@@ -23,13 +23,14 @@
 <style>
 
 .card-analyze{
-    background-color: #2f6690;
+    /* background-color: #284b63; */
+    /* background-color: #4f6367; */
+    background-color: #f3f7fe;
     width:15vw;
     height: 22vh;
     margin-top:-1rem;
-    border-radius: 1.4rem;
-    border-style: solid;
-    border-color: 344966;
+    /* border-radius: 0.2rem; */
+    /* border-color: #153243; */
 }
 
 .card-analyze:hover{
@@ -54,11 +55,11 @@
     margin-top: -1rem;
 }
 
-h3{
+#analyze-text-card{
     text-align: center;
     padding:6px;
     font-family: 'Lato', sans-serif;
-    color:rgb(255, 255, 255);
+    color:rgb(0, 0, 0);
 }
 
 </style>

@@ -95,7 +95,10 @@ font-family: 'Rubik Mono One', sans-serif; */
       display:flex;
       flex-wrap: wrap;
       color: rgb(0, 0, 0);
-      background-color: #dce2db;
+    //   background-color: #dce2db;
+    //   background-color: #f4f9e9;
+    //   background-color: #2968fa;
+    //   background-image: linear-gradient(to right, #2968fa, #0d93e7);
       margin-top:30vh;
       font-size: 2rem;
       font-family: 'Lato', sans-serif;
@@ -123,7 +126,7 @@ font-family: 'Rubik Mono One', sans-serif; */
 }
 
 .additional-text{
-    color:rgb(0, 0, 0);
+    color:rgb(253, 253, 253);
     font-size: 1.4rem;
     width: 55vw;
     text-align:center;
@@ -136,15 +139,19 @@ font-family: 'Rubik Mono One', sans-serif; */
     height: 80vh;
     width:100vw;
     // background-color: rgb(221, 232, 233);
-    background-color: #dce2db;
+    // background-color: #dce2db;
+    // background-color: #eef5db;
+    background-color: #7bb9e6;
     margin-top: -2rem;
-    margin-left:-2rem;
+    margin-left:-1rem;
     /* margin-top: -10rem; */
     /* display: flex; */
     /* padding: 0.7rem; */
     z-index: 2;
     overflow:hidden;
     justify-content: center;
+    // border-radius: 1rem 30rem; 
+    background-image: linear-gradient(to right, #7598ea, #6c2eca);
     
     
     /* flex-direction: row;
@@ -165,15 +172,19 @@ font-family: 'Rubik Mono One', sans-serif; */
     
     display: flex;
     flex-direction: row;
-    position: absolute;
+    position: fixed;
     // background-color: #f35730;
-    width:95vw;
+    width:100vw;
+    margin-left:-1rem;
     // right:0;
     justify-content: space-evenly;
     
     // padding: 2rem;
     margin-top: -1.9rem;
     /* background-color: aliceblue; */
+    // background-color: #add7f6;
+    z-index: 1000;
+    opacity: 0.95;
     
     }
 
@@ -182,7 +193,7 @@ font-family: 'Rubik Mono One', sans-serif; */
  }
 
 #about{
-    color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
     margin-top: 3rem;
     font-size: 1.6rem;
 }
@@ -191,23 +202,24 @@ font-family: 'Rubik Mono One', sans-serif; */
     display:flex ;
     flex-direction: column;
     align-items: center;
-    color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
     margin-top: 2rem;
     // font-size: 1.6rem;
 }
 
 #my-profile{
-    color:black;
+    color:rgb(255, 255, 255);
     font-size: 1.6rem;
 }
 
 #title{
-    color:rgb(0, 0, 0);
+    color:rgb(255, 255, 255);
     /* margin-top: 2rem; */
     position:relative;
     font-size: 3.5vw;
     margin-left: 3rem;
     font-family: 'Anton', sans-serif;
+    
     
    
 }
@@ -245,7 +257,8 @@ background-position:initial;
 
 $bg: #f3f8fa;
 $white: #fff;
-$black: #f35730;
+// $black: #f35730;
+$black: #f88d47;
 
 @mixin transition($property: all, $duration: 0.45s, $ease: cubic-bezier(0.65,0,.076,1)) {
   transition: $property $duration $ease;
@@ -434,17 +447,11 @@ button {
 }
 
 
-
-
-
-
-
-
-#about, #my-profile {
+#about, #my-profile ,#title {
   --s: 0.1em;   /* the thickness of the line */
-  --c: #ffffff; /* the color */
-  
-  color: #0000;
+//   --c: #b34c4c; /* the color */
+  --c: #ffffff;
+  color: white;
   padding-bottom: var(--s);
   background: 
     linear-gradient(90deg,var(--c) 50%,#000 0) calc(100% - var(--_p,0%))/200% 100%,
