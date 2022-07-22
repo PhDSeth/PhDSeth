@@ -3,7 +3,7 @@
 
         <div id="description-search">
             <div id = container-search>
-                <h3 id="search-text-card">Använd vår unika sökfunktion</h3>
+                <h3 id="search-text-card">Hitta drömutbildningen du inte visste fanns</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/sök.png" width=40% height=40% ></div>
             </div>
            
@@ -30,6 +30,7 @@
     width:15vw;
     height: 22vh;
     margin-top:-1rem;
+    box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.2);
 }
 
 .card-search:hover{

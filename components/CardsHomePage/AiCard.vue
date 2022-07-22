@@ -3,7 +3,7 @@
          
         <div id="description-ai">
             <div id = container-ai>
-                <h3 id="ai-text-card">Ta reda på dina betyg & behörighet</h3>
+                <h3 id="ai-text-card">Ta reda på dina chanser att komma in</h3>
                 <div id="image-styrkor"> <img src="~/assets/images/ai.png" width=40% height=40% ></div>
             </div>
            
@@ -30,6 +30,7 @@
     width:15vw;
     height: 22vh;
     margin-top:-1rem;
+       box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.2);
 }
 
 .card-ai:hover{

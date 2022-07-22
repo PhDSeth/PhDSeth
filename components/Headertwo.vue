@@ -16,7 +16,7 @@
 
 
             <div class="title-container">
-            <nuxt-link to="/"><h1 id = "title">studielabbet.</h1></nuxt-link>
+            <nuxt-link to="/"><h1 id = "title">Studielabbet</h1></nuxt-link>
             </div>
 
             <div id ="rolling-text">
@@ -61,7 +61,7 @@
       </div>
 
         <div id="element">
-            Hi. I'm #element.
+            .
         </div>
 
 
@@ -91,7 +91,6 @@ Vue.use(VueTypedJs)
 
     export default {
       // components: { BackToTop }
-      
         
     }
 </script>
@@ -102,21 +101,17 @@ Vue.use(VueTypedJs)
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Rubik+Mono+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Lato:wght@700&family=Poppins:wght@400;900&family=Rubik+Mono+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Lato:wght@300;700&family=Poppins:wght@400;900&family=Rubik+Mono+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Lato:wght@300;700&family=Montserrat:wght@500&family=Poppins:wght@400;900&family=Rubik+Mono+One&display=swap');
 /* font-family: 'Anton', sans-serif;
 font-family: 'Lato', sans-serif;
 font-family: 'Poppins', sans-serif;
 font-family: 'Rubik Mono One', sans-serif; */
 
-.arrow-container{
-    position:absolute;
-    margin-left:3rem;
-    bottom: -3rem;
-}
-
 #element{
 
   position:absolute;
-  margin-top: 100rem;
+  margin-top: 60rem;
+  color:white;
   
   
 }
@@ -168,9 +163,11 @@ font-family: 'Rubik Mono One', sans-serif; */
       flex-wrap: wrap;
       //   color: rgb(0, 0, 0);
       margin-top:40vh;
+      padding: 0.5rem;
       // font-size: 2rem;
       font-family: 'Lato', sans-serif;
-      margin-left: 15vw;
+      justify-content: center;
+     
       text-align: center;
     
 }
@@ -218,11 +215,24 @@ font-family: 'Rubik Mono One', sans-serif; */
       font-size: 3.7vw;
 }
 
+#title{
+    color:rgb(255, 255, 255);
+    /* margin-top: 2rem; */
+    position:relative;
+    font-size: 3.5vw;
+    margin-left: 3rem;
+    // font-family: 'Anton', sans-serif;
+    font-family: 'Montserrat', sans-serif;
+    
+    
+   
+}
+
 .login-profile{
     
     display: flex;
     flex-direction: row;
-    position: fixed;
+    position: absolute;
     // background-color: #f35730;
     width:100vw;
     margin-left:-1rem;
@@ -262,17 +272,7 @@ font-family: 'Rubik Mono One', sans-serif; */
     font-size: 1.6rem;
 }
 
-#title{
-    color:rgb(255, 255, 255);
-    /* margin-top: 2rem; */
-    position:relative;
-    font-size: 3.5vw;
-    margin-left: 3rem;
-    font-family: 'Anton', sans-serif;
-    
-    
-   
-}
+
 
 #title-2{
     color:rgb(232, 232, 232);
@@ -430,6 +430,7 @@ button {
     grid-area: main;
     align-self: center;
     justify-self: center;
+    padding:2.2rem;
   }
 }
 
@@ -441,6 +442,9 @@ button {
   animation: bounce 1600ms infinite cubic-bezier(0.445, 0.05, 0.55, 0.95);
   cursor: pointer;
   height: 15px;
+  position:absolute;
+  top: 93vh;
+  z-index:100000000000000;
 }
 
 .arrow-down {

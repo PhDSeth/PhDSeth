@@ -29,6 +29,7 @@
     width:15vw;
     height: 22vh;
     margin-top:-1rem;
+    box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.2);
 }
 
 .card-goal:hover{
