@@ -3,7 +3,7 @@
     <Headertwo/>
     <CardsContainer/>
     <BarContainer/>
-
+    <FooterView/>
   </div>
  
 </template>
@@ -12,9 +12,9 @@
 
 import CardsContainer from '../components/CardsHomePage/CardsContainer.vue';
 import BarContainer from '../components/InfoSections/BarContainer.vue';
-
 import Headertwo from '~/components/Headertwo.vue';
-export default { components: {CardsContainer, BarContainer ,Headertwo,   } }
+import FooterView from '../components/InfoSections/FooterView.vue'
+export default { components: {CardsContainer, BarContainer ,Headertwo, FooterView } }
 </script>
 
 <style>

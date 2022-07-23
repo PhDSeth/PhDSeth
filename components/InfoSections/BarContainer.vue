@@ -4,7 +4,7 @@
         <div> <SideBarAnalyze/></div>
         <div> <SideBarSearch/></div>
         <div> <SideBarCalc/></div>
-        <div> <SideBarCalc/></div>
+        <div> <SideBarGoals/></div>
         <div><SideBarAi/></div>
        
     
@@ -35,8 +35,8 @@ import SideBarAi from './SideBarAi.vue'
     flex-direction: column;
     /* align-items: space-evenly; */
     flex-wrap:wrap;
-    justify-content: space-evenly;
-    gap: 600px 500px;
+    /* justify-content: space-evenly; */
+    gap: 550px;
     z-index: 10;
     /* margin: 1rem; */
     /* margin-top: 4rem; */

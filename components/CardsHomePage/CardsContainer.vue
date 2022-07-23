@@ -5,7 +5,7 @@
         <div> <SearchCard/></div>
         <div> <CalcCard/></div>
         <div> <GoalsCard/></div>
-        <div>    <AiCard/></div>
+        <div><AiCard/></div>
        
     
     </div>
@@ -30,7 +30,7 @@ import AiCard from './AiCard.vue'
     /* margin-top: -10rem; */
     /* background-color: chocolate;
      */
-    margin-top: -6rem;
+    margin-top: -5rem;
     display: flex;
     align-items: center;
     flex-wrap:wrap;

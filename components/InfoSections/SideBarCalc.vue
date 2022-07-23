@@ -1,18 +1,27 @@
 <template>
     <div class = "container-side-bar-calc">
         <div class="text-analyze-card-calc">
-            <h1 id = "analyze-title-calc">Analysera dina styrkor & svagheter</h1>
+            <h1 id = "analyze-title-calc">Ta reda på dina betyg & behörighet</h1>
             <p id="analyze-text-calc">
-            Inom vilka ämnesområden presterar du bäst? Inom vilka områden är du lite svagare? Du kanske vill hitta en utbildning som bäst matchar mot din profil? Eller behöver du tips på vilka kurser du bör 
-            plugga upp?
+            Vi har som ambition att göra livet enklare för dig som planerar att söka till universitet och högskolor i Sverige. Därför har vi utvecklat en rad olika smarta funktioner åt dig.
+            Nu kan du för första gången räkna ut ditt betygssnitt helt automatiskt. Du behöver bara kopiera och klistra in dina betyg. Eller så fotar du dina betyg, och vi löser in dessa åt dig. Du kan också exportera betyget som en Excel-fil om du vill.
+
             <br>
             <br>
-            Oavsett vad du behöver hjälp med så finns vi där för dig. Allt du behöver göra är att lägga in dina betyg. Det kan du göra smidigt genom att klippa och klistra. Busenkelt!
+            Funktionen inkluderar:
+            <ul>
+                <div class="list-items-calc">
+                <li>Automatisk uträkning av ditt betygssnitt</li>
+                <li>Automatisk uträkning av vilka behörighetsgrupper du tillhör </li>
+                </div>
+            </ul>
+ 
+            
             </p>
         </div>
 
         <div class = "img-analyze-card-calc">
-            <img src="~/assets/images/circle-info.png" width=90% height=100% >
+            <img src="~/assets/images/grades.png" width=90% height=100% >
         </div>
 
 
@@ -34,6 +43,7 @@ import VScrollin from "vue-scrollin";
 }
 
 .container-side-bar-calc{
+    margin-top:2rem;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -42,7 +52,13 @@ import VScrollin from "vue-scrollin";
     /* margin-left:-2rem; */
     padding: 2rem;
     /* background-color: #f4f9e9; */
-    width: 100vw;
+    margin-top:275px;
+    width: 90vw;
+    margin-left:60px;
+    background-image: linear-gradient(to right, #f1f5fe, #d9d7e2);
+    /* border: solid; */
+    /* border-color: #4a4d84; */
+    border-radius: 0.4rem;
 
 
 }
@@ -68,7 +84,7 @@ a{
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    width:50%;
+    width:60%;
     flex-wrap: wrap;
     padding: 2rem;
     animation: slide-up 3s;
@@ -82,6 +98,21 @@ a{
 #analyze-title-calc{
     margin-bottom: 1.6rem;
 }
+
+.list-items-calc{
+    margin-left:50px;
+}
+
+:root {
+    --bg: #fdfdfd;
+    --highlight1: #ED4264;
+    --highlight2: #FFEDBC;
+    --color: #1a1e24;
+    --font-number: Montserrat, Roboto, Helvetica, Arial, sans-serif;
+    --font-head: "Space Mono", Consolas, Menlo, Monaco, "Courier New", monospace;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
 
 
 </style>

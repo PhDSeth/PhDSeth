@@ -1,5 +1,6 @@
 <template>
     <div class="body">
+
           <div id="top">
         </div>
 
@@ -10,7 +11,7 @@
                     <font-awesome-icon id="icon-user" fa-6x :icon="['fa', 'user']" style="font-size: 1rem"/>
                     <nuxt-link to="/LoggedInContent/PersonalPage"><h1 id = "my-profile">Logga in</h1></nuxt-link>
                 </div>
-            </div>
+          </div>
          
         <div class="header">
 
@@ -27,9 +28,8 @@
             </div>
 
             <div class ="additional-text">
-                 <p>Vi har utvecklat unika och kraftfulla verktyg som underlättar livet för dig som blivande student.
-                  <br>
-                  Scrolla ner så berättar vi mer!
+                 <p>Vi har utvecklat 5 unika och kraftfulla verktyg som underlättar livet för dig som blivande student. Läs mer genom att trycka på funktionerna nedan, eller
+                  scrolla ner så berättar vi mer!
                  </p>
             </div>
 
@@ -49,16 +49,19 @@
                 </div>
             </div>
             <div class="arrow-container">
-                <a href="#" v-scroll-to="{ element: '#element', duration: 3000 }"><div class="arrow-down"></div></a>
+                <a href="#" v-scroll-to="{ element: '#element', duration: 2000 }"><div class="arrow-down"></div></a>
             </div>
 
                         
 
         </div>
-        <div class = "top-button">
-          <a href="#" v-scroll-to="{ element: '#top', duration: 2000}">TOPP</a>
-          <!-- <back-to-top text="Back to top"></back-to-top> -->
-      </div>
+
+        <client-only>
+          <div v-show="isVisible" class="scrollup-button" @click="scrollToTop">
+            <img src="~/assets/images/to-top.png" alt="back to top" />
+  
+          </div>
+        </client-only>
 
         <div id="element">
             .
@@ -79,7 +82,7 @@
 </template>
 
 <script>
-
+import { debounce } from 'vue-debounce'
 import Vue from 'vue'
 import VueTypedJs from 'vue-typed-js'
 // import BackToTop from 'vue-backtotop'
@@ -90,7 +93,42 @@ Vue.use(VueTypedJs)
 // Vue.use(BackToTop)
 
     export default {
-      // components: { BackToTop }
+      data() {
+    return {
+      scrollTop: null,
+      isVisible: false,
+      visibleDistance: 200,
+    }
+  },
+  mounted() {
+    window.addEventListener('scroll', debounce(this.scrollListener, 100), true)
+  },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.scrollListener)
+  },
+  methods: {
+    scrollListener() {
+      if (window.pageYOffset) {
+        this.scrollTop = window.pageYOffset
+      } else {
+        this.scrollTop = 0
+      }
+      
+      if (this.scrollTop > this.visibleDistance) {
+        this.isVisible = true
+      } else {
+        this.isVisible = false
+      }
+    },
+    scrollToTop() {
+      this.intervalId = setInterval(() => {
+        if (window.pageYOffset === 0) {
+          clearInterval(this.intervalId)
+        }
+        window.scroll(0, window.pageYOffset - 30)
+      }, 4)
+    },
+  },
         
     }
 </script>
@@ -107,10 +145,31 @@ font-family: 'Lato', sans-serif;
 font-family: 'Poppins', sans-serif;
 font-family: 'Rubik Mono One', sans-serif; */
 
+
+.scrollup-button {
+  position: fixed;
+  bottom: 3rem;
+  right: 2rem;
+  cursor: pointer;
+  // border-radius: 0.25rem;
+  opacity: 0.5;
+  padding: 0.7rem;
+  z-index: 100000;
+  transition: opacity 0.15s ease;
+  &:hover {
+    opacity: 1;
+  }
+  img {
+    width: 2.3rem;
+    height: 2.3rem;
+  }
+}
+
+
 #element{
 
   position:absolute;
-  margin-top: 60rem;
+  margin-top: 140px;
   color:white;
   
   
@@ -188,17 +247,17 @@ font-family: 'Rubik Mono One', sans-serif; */
     // background-color: rgb(221, 232, 233);
     // background-color: #dce2db;
     // background-color: #eef5db;
-    background-color: #7bb9e6;
+    // background-color: #7bb9e6;
     margin-top: -2rem;
     margin-left:-1rem;
     /* margin-top: -10rem; */
     /* display: flex; */
     /* padding: 0.7rem; */
-    z-index: 2;
+    z-index: 200;
     overflow:hidden;
     justify-content: center;
     // border-radius: 1rem 30rem; 
-    background-image: linear-gradient(to right, #8dacf4, #5436cb);
+    background-image: linear-gradient(to right, #8dacf4, #602cca);
     
     
     /* flex-direction: row;
@@ -222,17 +281,27 @@ font-family: 'Rubik Mono One', sans-serif; */
     font-size: 3.5vw;
     margin-left: 3rem;
     // font-family: 'Anton', sans-serif;
-    font-family: 'Montserrat', sans-serif;
-    
-    
+    font-family: 'Montserrat', sans-serif; 
    
 }
 
+p{
+  font-family: 'Montserrat', sans-serif;
+}
+
+h1{
+  font-family: 'Montserrat', sans-serif;
+}
+
+h3{
+  font-family: 'Montserrat', sans-serif;
+}
+
 .login-profile{
-    
+    background-image: linear-gradient(to right, #8dacf4, #602cca);
     display: flex;
     flex-direction: row;
-    position: absolute;
+    position: fixed;
     // background-color: #f35730;
     width:100vw;
     margin-left:-1rem;
@@ -244,7 +313,7 @@ font-family: 'Rubik Mono One', sans-serif; */
     /* background-color: aliceblue; */
     // background-color: #add7f6;
     z-index: 1000;
-    opacity: 0.95;
+    // opacity: 0.90;
     
     }
 
@@ -443,8 +512,8 @@ button {
   cursor: pointer;
   height: 15px;
   position:absolute;
-  top: 93vh;
-  z-index:100000000000000;
+  top: 95vh;
+  z-index:500;
 }
 
 .arrow-down {
@@ -453,6 +522,7 @@ button {
   transform: rotate(45deg);
   transform-origin: 0% 0%;
   border-radius: 5px;
+
 }
 .arrow-down:after {
   content: '';

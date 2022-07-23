@@ -28,6 +28,7 @@
     "nuxt-gmaps": "^1.2.10",
     "nuxt-leaflet": "^0.0.27",
     "vue-browser-geolocation": "^1.8.0",
+    "vue-debounce": "^4.0.0",
     "vue-iframes": "^0.0.19",
     "vue-scrollin": "^0.1.2",
     "vue-typed-js": "^0.1.2",

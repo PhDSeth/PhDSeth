@@ -1,6 +1,8 @@
 <template>
     <div class = "card-analyze" >
 
+         <a href="#" v-scroll-to="{ element: '#element', duration: 2000 }">
+
         <div id="description-analyze">
             <div id = container-analyze>
                 <h3 id="analyze-text-card">Analyser dina styrkor & svagheter</h3>
@@ -8,6 +10,7 @@
             </div>
            
         </div>
+        </a>
 
         
 
@@ -30,8 +33,10 @@
     height: 22vh;
     margin-top:-1rem;
     box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.2);
-    /* border-radius: 0.2rem; */
-    /* border-color: #153243; */
+    border: solid;
+    border-color: #342773;
+    border-radius: 0.4rem;
+    border-width: 1px;
 }
 
 .card-analyze:hover{

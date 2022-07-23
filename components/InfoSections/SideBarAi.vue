@@ -42,7 +42,14 @@ import VScrollin from "vue-scrollin";
     /* margin-left:-2rem; */
     padding: 2rem;
     /* background-color: #f4f9e9; */
-    width: 100vw;
+
+    width: 90vw;
+    margin-left:60px;
+    margin-top:675px;
+    background-image: linear-gradient(to right, #f1f5fe, #d9d7e2);
+    /* border: solid; */
+    /* border-color: #4a4d84; */
+    border-radius: 0.4rem;
 
 
 }
