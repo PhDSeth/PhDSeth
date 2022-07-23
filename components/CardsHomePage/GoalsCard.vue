@@ -1,6 +1,6 @@
 <template>
     <div class = "card-goal" >
-
+         <a href="#" v-scroll-to="{ element: '#container-side-bar-goals', duration: 2000 }">
         <div id="description-goal">
             <div id = container-goal>
                 <h3 id ="goal-text-card">Sätt upp & följ dina mål</h3>
@@ -8,6 +8,7 @@
             </div>
            
         </div>
+        </a>
 
         
 

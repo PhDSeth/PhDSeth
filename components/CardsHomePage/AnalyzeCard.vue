@@ -1,7 +1,7 @@
 <template>
     <div class = "card-analyze" >
 
-         <a href="#" v-scroll-to="{ element: '#element', duration: 2000 }">
+         <a href="#" v-scroll-to="{ element: '#container-side-bar-analyze', duration: 2000 }">
 
         <div id="description-analyze">
             <div id = container-analyze>

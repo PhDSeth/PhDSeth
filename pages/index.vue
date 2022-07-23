@@ -3,7 +3,9 @@
     <Headertwo/>
     <CardsContainer/>
     <BarContainer/>
+    <Price/>
     <FooterView/>
+
   </div>
  
 </template>
@@ -13,8 +15,9 @@
 import CardsContainer from '../components/CardsHomePage/CardsContainer.vue';
 import BarContainer from '../components/InfoSections/BarContainer.vue';
 import Headertwo from '~/components/Headertwo.vue';
+import Price from '~/components/Price.vue';
 import FooterView from '../components/InfoSections/FooterView.vue'
-export default { components: {CardsContainer, BarContainer ,Headertwo, FooterView } }
+export default { components: {CardsContainer, BarContainer ,Headertwo, Price,FooterView } }
 </script>
 
 <style>

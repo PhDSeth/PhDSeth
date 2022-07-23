@@ -1,5 +1,5 @@
 <template>
-    <div class = "container-side-bar-search">
+    <div id = "container-side-bar-search">
         <div class="text-analyze-card-search">
             <h1 id = "analyze-title-search">Hitta drömutbildningen du inte visste fanns</h1>
             <p id="analyze-text-search">
@@ -36,7 +36,7 @@ import VScrollin from "vue-scrollin";
     /* margin-top: 2rem; */
 }
 
-.container-side-bar-search{
+#container-side-bar-search{
     display: flex;
     flex-direction: row;
     position:absolute;

@@ -1,6 +1,7 @@
 <template>
     <div class = "card-calc" >
 
+          <a href="#" v-scroll-to="{ element: '#container-side-bar-calc', duration: 2000 }">
         <div id="description-calc">
             <div id = contcalcner-calc>
                 <h3 id ="calc-text-card">Ta reda på dina betyg & behörighet</h3>
@@ -8,6 +9,7 @@
             </div>
            
         </div>
+        </a>
 
         
 

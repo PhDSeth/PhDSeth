@@ -1,6 +1,6 @@
 <template>
 
-    <div class = "container-side-bar-analyze">
+    <div id = "container-side-bar-analyze">
         <div class="text-analyze-card-analyze">
             <h1 id = "analyze-title-analyze">Analysera dina styrkor & svagheter</h1>
             <p id="analyze-text-analyze">
@@ -45,7 +45,7 @@ import VScrollin from "vue-scrollin";
     margin-top: 2rem;
 }
 
-.container-side-bar-analyze{
+#container-side-bar-analyze{
     display: flex;
     flex-direction: row;
     position:absolute;

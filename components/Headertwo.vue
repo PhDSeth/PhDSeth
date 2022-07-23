@@ -28,7 +28,7 @@
             </div>
 
             <div class ="additional-text">
-                 <p>Vi har utvecklat 5 unika och kraftfulla verktyg som underlättar livet för dig som blivande student. Läs mer genom att trycka på funktionerna nedan, eller
+                 <p>Vi har utvecklat 5 unika & kraftfulla verktyg som underlättar livet för dig som blivande student. Läs mer genom att trycka på funktionerna nedan, eller
                   scrolla ner så berättar vi mer!
                  </p>
             </div>
@@ -204,8 +204,9 @@ font-family: 'Rubik Mono One', sans-serif; */
     //   background-color: #2968fa;
     //   background-image: linear-gradient(to right, #2968fa, #0d93e7);
       margin-top:30vh;
-      font-size: 2rem;
-      font-family: 'Lato', sans-serif;
+      font-size: 1.5rem;
+      // font-family: 'Lato', sans-serif;
+      font-family: 'Montserrat', sans-serif; 
       margin-left: 2rem;
       text-align: center;
 
@@ -224,19 +225,19 @@ font-family: 'Rubik Mono One', sans-serif; */
       margin-top:40vh;
       padding: 0.5rem;
       // font-size: 2rem;
-      font-family: 'Lato', sans-serif;
+      // font-family: 'Lato', sans-serif;
+      font-family: 'Montserrat', sans-serif; 
       justify-content: center;
      
       text-align: center;
+      color:rgb(253, 253, 253);
+      font-size: 1.2rem;
+      width: 55vw;
+      text-align:center;
     
 }
 
-.additional-text{
-    color:rgb(253, 253, 253);
-    font-size: 1.4rem;
-    width: 55vw;
-    text-align:center;
-}
+
 
 .header{
     display:flex;
@@ -377,7 +378,8 @@ background-position:initial;
 $bg: #f3f8fa;
 $white: #fff;
 // $black: #f35730;
-$black: #de7732;
+// $black: #e17730;
+$black: #8b15ba;
 
 @mixin transition($property: all, $duration: 0.45s, $ease: cubic-bezier(0.65,0,.076,1)) {
   transition: $property $duration $ease;

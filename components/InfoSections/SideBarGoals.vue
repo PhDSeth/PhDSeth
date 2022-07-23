@@ -1,5 +1,5 @@
 <template>
-    <div class = "container-side-bar">
+    <div id = "container-side-bar-goals">
         <div class="text-analyze-card">
             <h1 id = "analyze-title">Bibehåll motivationen genom att sätt upp mål och följa din egna utveckling!</h1>
             <p id="analyze-text">
@@ -49,7 +49,7 @@ import VScrollin from "vue-scrollin";
     margin-top: 2rem;
 }
 
-.container-side-bar{
+#container-side-bar-goals{
     display: flex;
     flex-direction: row;
     position:absolute;

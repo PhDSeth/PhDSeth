@@ -1,5 +1,5 @@
 <template>
-    <div class = "container-side-bar-ai">
+    <div id = "container-side-bar-ai">
         <div class="text-analyze-card-ai">
             <h1 id = "analyze-title-ai">Analysera dina styrkor & svagheter</h1>
             <p id="analyze-text-ai">
@@ -33,7 +33,7 @@ import VScrollin from "vue-scrollin";
     margin-top: 2rem;
 }
 
-.container-side-bar-ai{
+#container-side-bar-ai{
     display: flex;
     flex-direction: row;
     justify-content: space-between;

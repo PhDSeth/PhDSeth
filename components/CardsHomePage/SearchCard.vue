@@ -1,6 +1,6 @@
 <template>
     <div class = "card-search" >
-        <a href="#" v-scroll-to="{ element: '#analyze-title-search', duration: 2000 }">
+        <a href="#" v-scroll-to="{ element: '#container-side-bar-search', duration: 2000 }">
 
             <div id="description-search">
                 <div id = container-search>

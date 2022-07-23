@@ -1,5 +1,5 @@
 <template>
-    <div class = "container-side-bar-calc">
+    <div id = "container-side-bar-calc">
         <div class="text-analyze-card-calc">
             <h1 id = "analyze-title-calc">Ta reda på dina betyg & behörighet</h1>
             <p id="analyze-text-calc">
@@ -42,7 +42,7 @@ import VScrollin from "vue-scrollin";
     margin-top: 2rem;
 }
 
-.container-side-bar-calc{
+#container-side-bar-calc{
     margin-top:2rem;
     display: flex;
     flex-direction: row;

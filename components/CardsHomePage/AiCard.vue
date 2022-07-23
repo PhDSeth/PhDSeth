@@ -1,6 +1,6 @@
 <template>
     <div class = "card-ai" >
-         
+         <a href="#" v-scroll-to="{ element: '#container-side-bar-ai', duration: 2000 }">
         <div id="description-ai">
             <div id = container-ai>
                 <h3 id="ai-text-card">Ta reda på dina chanser att komma in</h3>
@@ -8,6 +8,7 @@
             </div>
            
         </div>
+        </a>
 
         
 
