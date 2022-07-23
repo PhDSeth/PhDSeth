@@ -520,7 +520,7 @@ button {
 
 .arrow-down {
   height: 6px;
-  background: #5436cb;
+  background: #8b15ba;
   transform: rotate(45deg);
   transform-origin: 0% 0%;
   border-radius: 5px;
@@ -534,7 +534,7 @@ button {
   bottom: 0;
   left: 100%;
   border-radius: 5px;
-  background: #5436cb;
+  background: #8b15ba;
   transform: rotate(-90deg);
   transform-origin: 0% 100%;
 }

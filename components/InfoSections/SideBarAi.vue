@@ -1,13 +1,15 @@
 <template>
     <div id = "container-side-bar-ai">
         <div class="text-analyze-card-ai">
-            <h1 id = "analyze-title-ai">Analysera dina styrkor & svagheter</h1>
+            <h1 id = "analyze-title-ai">Ta reda på dina chanser att bli antagen till din drömutbildning!</h1>
             <p id="analyze-text-ai">
-            Inom vilka ämnesområden presterar du bäst? Inom vilka områden är du lite svagare? Du kanske vill hitta en utbildning som bäst matchar mot din profil? Eller behöver du tips på vilka kurser du bör 
-            plugga upp?
+            Är du placerad som reserv i urval 1 eller 2 och undrar om du kommer in? Vi har sammanställt data för landets samtliga utbildningar. Vi kan ge dig svaret på hur stora dina chanser är att bli antagen om du placerats som reserv efter urval 1 och 2. 
+
+            Är du nyfiken på hur stora chanser du har att bli antagen till din drömutbildning? Sluta gissa! Vi har utvecklat ett kraftfullt verktyg baserat på artificiell intelligens som kan ge dig en kvalificerad hint på hur stora chanser du har. Flashback, släng dig i väggen.
+
             <br>
             <br>
-            Oavsett vad du behöver hjälp med så finns vi där för dig. Allt du behöver göra är att lägga in dina betyg. Det kan du göra smidigt genom att klippa och klistra. Busenkelt!
+            Funktionen inkluderar:
             </p>
         </div>
 

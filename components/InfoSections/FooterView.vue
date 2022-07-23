@@ -18,7 +18,17 @@
             <div class = "right-footer">
                 <h3  id="title-right-footer">Kontakt</h3>
                 <p>Vi förstår om du har frågor! Tveka inte att höra av dig om du undrar något. 
+                    Maila oss på: <a href="/">info@studielabbet.se</a> eller skriv till oss på Instagram eller Facebook.
                 </p>
+
+                <br>
+                <br>
+                 <h3  id="title-right-footer">Följ oss!</h3>
+                 <div id="icons">
+                    <font-awesome-icon id="icon-check-analyze" fa-6x :icon="['fab', 'instagram']" />
+                    <font-awesome-icon id="icon-check-analyze" fa-6x :icon="['fab', 'facebook']" />
+                    
+                 </div>
 
             </div>
 
@@ -35,7 +45,11 @@
 
 <style lang="scss" scoped>
 
-
+#icons{
+    text-align:center;
+    margin-top:1rem;
+    font-size:2rem;
+}
 .footer{
     display:flex;
     flex-direction:row;

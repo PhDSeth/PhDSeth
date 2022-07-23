@@ -15,8 +15,8 @@
             <br>
             Funktionen inkluderar:
             <ul class = "list-analyze">
-                <li >Automatisk analys av dina styrkeområden</li>
-                <li>Förslag på kurser att plugga upp för att optimera dina chanser att bli antagen</li>
+                <li > <font-awesome-icon id="icon-check-analyze" fa-6x :icon="['fa', 'circle-check']" style="font-size: 1.3rem"/>Automatisk analys av dina styrkeområden</li>
+                <li> <font-awesome-icon id="icon-check-analyze" fa-6x :icon="['fa', 'circle-check']" style="font-size: 1.3rem"/>Förslag på kurser att plugga upp för att optimera dina chanser att bli antagen</li>
 
             </ul>
             </p>
@@ -40,6 +40,11 @@ import VScrollin from "vue-scrollin";
 </script>
 
 <style>
+
+
+#icon-check-analyze{
+    margin-right:0.8rem;
+}
 
 .img-analyze-card-analyze{
     margin-top: 2rem;
@@ -101,6 +106,7 @@ a{
 
 .list-analyze{
     margin-left:3rem;
+    list-style: none;
 }
 
 p{

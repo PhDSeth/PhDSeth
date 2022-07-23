@@ -33,7 +33,8 @@
     margin-top:-1rem;
     box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.2);
     border: solid;
-    border-color: #342773;
+    /* border-color: #342773; */
+    border-color: white;
     border-radius: 0.4rem;
     border-width: 1px;
 }
