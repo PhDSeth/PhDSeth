@@ -58,7 +58,7 @@
     position:absolute;
     z-index:100;
     height:20rem;
-    bottom:-120rem;
+    bottom:-130rem;
     margin-left:-1rem;
     color:white;
 }

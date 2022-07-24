@@ -5,8 +5,8 @@
         </div>
 
         <div class="login-profile">
-                <nuxt-link to="/SignUp"><h1 id = "about">Om oss</h1></nuxt-link>
-                <nuxt-link to="/SignUp"><h1 id = "about">Kontakt</h1></nuxt-link>
+                <a href="#" v-scroll-to="{ element: '#title-left-footer', duration: 2000 }"><h1 id = "about">Om oss</h1></a>
+                <a href="#" v-scroll-to="{ element: '#title-left-footer', duration: 2000 }"><h1 id = "about">Kontakt</h1></a>
                 <div class = "profile">
                     <font-awesome-icon id="icon-user" fa-6x :icon="['fa', 'user']" style="font-size: 1rem"/>
                     <nuxt-link to="/LoggedInContent/PersonalPage"><h1 id = "my-profile">Logga in</h1></nuxt-link>
@@ -36,13 +36,14 @@
             <div class="kommer-jag-in-btn">
                 
             <div id="container">
-                <button class="learn-more">
+                 <nuxt-link to="/SignUp"><button class="learn-more">
                     <span class="circle" aria-hidden="true">
                     <span class="icon arrow"></span>
                     </span>
-                    <span class="button-text"> Skapa ett konto</span>
+                   <span class="button-text"> Skapa ett konto</span>
+                    
                    
-                </button>
+                </button></nuxt-link>
 
           
                  
@@ -258,7 +259,7 @@ font-family: 'Rubik Mono One', sans-serif; */
     overflow:hidden;
     justify-content: center;
     // border-radius: 1rem 30rem; 
-    background-image: linear-gradient(to right, #8dacf4, #602cca);
+    background-image: linear-gradient(to right, #8fadf4, #4c1cac);
     
     
     /* flex-direction: row;
@@ -299,7 +300,7 @@ h3{
 }
 
 .login-profile{
-    background-image: linear-gradient(to right, #8dacf4, #602cca);
+    background-image: linear-gradient(to right, #8fadf4, #4c1cac);
     display: flex;
     flex-direction: row;
     position: fixed;
@@ -379,7 +380,7 @@ $bg: #f3f8fa;
 $white: #fff;
 // $black: #f35730;
 // $black: #e17730;
-$black: #8b15ba;
+$black: rgb(226, 87, 69);
 
 @mixin transition($property: all, $duration: 0.45s, $ease: cubic-bezier(0.65,0,.076,1)) {
   transition: $property $duration $ease;
@@ -520,7 +521,7 @@ button {
 
 .arrow-down {
   height: 6px;
-  background: #8b15ba;
+  background: #ba153b;
   transform: rotate(45deg);
   transform-origin: 0% 0%;
   border-radius: 5px;

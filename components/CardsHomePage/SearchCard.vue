@@ -36,13 +36,18 @@
     border: solid;
     border-color: white;
     border-radius: 0.4rem;
-    border-width: 1px;
+    /* border-width: 2px;
+    border-color:rgb(154, 30, 123); */
+
+    border-bottom: 2px solid rgb(226, 87, 69);
 }
 
 .card-search:hover{
    transform: scale(1.1); 
    box-shadow: 52px 52px 52px rgba(0, 0, 0, 0.2);
-   transform: translateY(-10px)
+   transform: translateY(-10px);
+      border-bottom: 5px solid rgb(226, 87, 69);
+   transition: 0.3s;
 
 }
 

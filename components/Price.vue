@@ -35,7 +35,7 @@
     flex-direction: column;
     align-items: center;
     margin-top:1rem;
-    bottom:-88rem;
+    bottom:-95rem;
     width: 90vw;
     padding:3rem;
     margin-left:3rem;
